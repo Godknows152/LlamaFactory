@@ -263,6 +263,38 @@
       "system_tag": "system"
     }
   },
+  "restoration_sft_stop_train": {
+    "file_name": "restoration_sft_stop_train.jsonl",
+    "formatting": "sharegpt",
+    "columns": {
+      "messages": "conversations",
+      "images": "images",
+      "tools": "tools"
+    },
+    "tags": {
+      "role_tag": "from",
+      "content_tag": "value",
+      "user_tag": "user",
+      "assistant_tag": "assistant",
+      "system_tag": "system"
+    }
+  },
+  "restoration_sft_stop_val": {
+    "file_name": "restoration_sft_stop_val.jsonl",
+    "formatting": "sharegpt",
+    "columns": {
+      "messages": "conversations",
+      "images": "images",
+      "tools": "tools"
+    },
+    "tags": {
+      "role_tag": "from",
+      "content_tag": "value",
+      "user_tag": "user",
+      "assistant_tag": "assistant",
+      "system_tag": "system"
+    }
+  },
   "sharegpt4": {
     "hf_hub_url": "shibing624/sharegpt_gpt4",
     "ms_hub_url": "AI-ModelScope/sharegpt_gpt4",

@@ -1,12 +1,12 @@
 #######################################################################################
-# Qwen3-VL 图像还原工具调用 SFT 训练配置
+# Qwen3-VL Stop 工具 SFT 补充训练配置
 # 单机4卡 DDP 训练 (每卡80GB)
-# 使用方法: bash train_restore_4gpu.sh
-# 或手动: torchrun --nproc_per_node=4 src/train.py examples/train_lora/qwen3vl_lora_sft_restore_4gpu.yaml
+# 基底模型: Train3/Step36 (已具备工具调用能力，补充学习 stop)
+# 使用方法: bash train_restore_stop_4gpu.sh
 #######################################################################################
 
 ### Model Configuration
-model_name_or_path: /home/LXJ/Python_Projects/ViGoRL/Qwen_Model/Qwen3-VL-8B-Instruct_for_sft
+model_name_or_path: /home/LXJ/Python_Projects/verl/checkpoints/merged/Train3/Step36
 image_max_pixels: 262144
 video_max_pixels: 16384
 trust_remote_code: true
@@ -20,7 +20,7 @@ lora_rank: 8
 lora_target: all
 
 ### Dataset Configuration
-dataset: restoration_sft_train
+dataset: restoration_sft_stop_train
 template: qwen3_vl_nothink
 cutoff_len: 2048
 preprocessing_num_workers: 16
@@ -28,26 +28,26 @@ dataloader_num_workers: 4
 overwrite_cache: true
 
 ### Evaluation Dataset
-eval_dataset: restoration_sft_val
+eval_dataset: restoration_sft_stop_val
 
 ### Output Configuration
-output_dir: saves/sft_0430/
+output_dir: saves/stop_sft/
 logging_steps: 10
-save_steps: 200
+save_steps: 50
 plot_loss: true
 overwrite_output_dir: false
 save_only_model: true
 
 ### SwanLab Integration (Experiment Tracking)
-use_swanlab: true  # 使用 SwanLab 记录实验
+use_swanlab: true
 swanlab_project: LLaMA_Factory
-swanlab_run_name: SFT_4月26日0时26分
+swanlab_run_name: Stop_SFT_补训
 
 ### Training Parameters (4-GPU DDP Optimized, 80GB per GPU)
 per_device_train_batch_size: 8
 per_device_eval_batch_size: 8
 gradient_accumulation_steps: 2
-learning_rate: 1.0e-4
+learning_rate: 5.0e-5
 num_train_epochs: 3.0
 lr_scheduler_type: cosine
 warmup_ratio: 0.1
@@ -55,7 +55,7 @@ bf16: true
 
 ### Evaluation Configuration
 eval_strategy: steps
-eval_steps: 100
+eval_steps: 50
 eval_accumulation_steps: 8
 metric_for_best_model: eval_loss
 greater_is_better: false
@@ -72,4 +72,4 @@ resume_from_checkpoint: null
 optim: paged_adamw_32bit
 max_grad_norm: 1.0
 gradient_checkpointing: true
-enable_liger_kernel: true  # 使用 Liger Kernel 加速训练，节省显存
+enable_liger_kernel: true
