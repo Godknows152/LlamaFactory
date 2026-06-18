@@ -22,7 +22,6 @@ from typing import TYPE_CHECKING
 from ...extras import logging
 from ...extras.constants import RopeScaling
 
-
 if TYPE_CHECKING:
     from transformers import PretrainedConfig
 

@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import pytest
-
 from llamafactory.eval.template import get_eval_template
 
 

@@ -21,7 +21,6 @@ from transformers.integrations import is_deepspeed_zero3_enabled
 
 from ...extras.packages import is_requests_available
 
-
 if is_requests_available():
     import requests
 

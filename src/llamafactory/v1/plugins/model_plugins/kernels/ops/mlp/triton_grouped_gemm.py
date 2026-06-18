@@ -28,7 +28,6 @@ import torch
 import triton
 import triton.language as tl
 
-
 # ---------------------------------------------------------------------------
 # Triton helper: grouped tile indexing with L2 cache-friendly swizzle
 # ---------------------------------------------------------------------------

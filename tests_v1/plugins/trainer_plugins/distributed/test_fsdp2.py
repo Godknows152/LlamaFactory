@@ -19,13 +19,11 @@ and non-persistent buffers by comparing it with the standard non-meta path.
 """
 
 import torch
-from transformers import AutoConfig
-
 from llamafactory.v1.accelerator.interface import DistributedInterface
 from llamafactory.v1.config.arg_parser import get_args
 from llamafactory.v1.core.model_engine import ModelEngine
 from llamafactory.v1.plugins.trainer_plugins.distributed.fsdp2 import FSDP2Engine
-
+from transformers import AutoConfig
 
 TINY_MODEL = "llamafactory/tiny-random-qwen3"
 

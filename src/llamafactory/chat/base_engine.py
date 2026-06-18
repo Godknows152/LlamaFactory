@@ -17,7 +17,6 @@ from collections.abc import AsyncGenerator
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Literal, Optional, Union
 
-
 if TYPE_CHECKING:
     from transformers import PreTrainedModel, PreTrainedTokenizer
     from vllm import AsyncLLMEngine

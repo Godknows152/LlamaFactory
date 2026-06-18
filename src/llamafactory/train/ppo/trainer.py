@@ -43,7 +43,6 @@ from ..callbacks import FixValueHeadModelCallback, SaveProcessorCallback
 from ..trainer_utils import create_custom_optimizer, create_custom_scheduler
 from .ppo_utils import dump_layernorm, get_rewards_from_server, replace_model, restore_layernorm
 
-
 if TYPE_CHECKING:
     from datasets import Dataset
     from transformers import (

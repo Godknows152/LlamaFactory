@@ -20,7 +20,6 @@ from ...extras import logging
 from ...extras.constants import IGNORE_INDEX
 from .processor_utils import DatasetProcessor, greedy_knapsack, infer_seqlen
 
-
 if TYPE_CHECKING:
     from ..mm_plugin import AudioInput, ImageInput, VideoInput
 

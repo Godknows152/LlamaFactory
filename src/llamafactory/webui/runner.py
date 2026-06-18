@@ -40,7 +40,6 @@ from .common import (
 from .control import get_trainer_info
 from .locales import ALERTS, LOCALES
 
-
 if is_gradio_available():
     import gradio as gr
 

@@ -19,7 +19,6 @@ import fire
 import torch
 from deepspeed.accelerator import get_accelerator  # type: ignore
 from deepspeed.profiling.flops_profiler import get_model_profile  # type: ignore
-
 from llamafactory.chat import ChatModel
 
 

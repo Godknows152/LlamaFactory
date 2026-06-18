@@ -25,7 +25,6 @@ from ..core.model_engine import ModelEngine
 from ..utils import logging
 from ..utils.types import BatchInput, HFModel, Tensor
 
-
 logger = logging.get_logger(__name__)
 
 

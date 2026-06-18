@@ -15,7 +15,6 @@
 import sys
 from pathlib import Path
 
-
 KEYWORDS = ("Copyright", "2025", "LlamaFactory")
 
 

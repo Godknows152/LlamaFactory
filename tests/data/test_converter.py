@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import pytest
-
 from llamafactory.data import Role
 from llamafactory.data.converter import get_dataset_converter
 from llamafactory.data.parser import DatasetAttr

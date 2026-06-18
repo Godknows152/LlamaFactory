@@ -22,7 +22,6 @@ import triton.language as tl
 
 from .utils import get_autotune_config, get_npu_properties, prepare_chunk_indices, prepare_chunk_offsets
 
-
 CUBE_CORE_NUM = get_npu_properties()["num_aicore"]
 
 

@@ -36,7 +36,6 @@ from .model_utils.rope import configure_rope
 from .model_utils.valuehead import prepare_valuehead_model
 from .model_utils.visual import autocast_projector_dtype, configure_visual_model
 
-
 if TYPE_CHECKING:
     from transformers import PretrainedConfig, PreTrainedTokenizer, ProcessorMixin
     from trl import AutoModelForCausalLMWithValueHead

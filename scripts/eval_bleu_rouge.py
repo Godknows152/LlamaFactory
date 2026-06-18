@@ -19,7 +19,6 @@ import time
 import fire
 from datasets import load_dataset
 
-
 try:
     import jieba  # type: ignore
     from nltk.translate.bleu_score import SmoothingFunction, sentence_bleu  # type: ignore

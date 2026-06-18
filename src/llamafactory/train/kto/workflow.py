@@ -25,7 +25,6 @@ from ...model import load_model, load_tokenizer
 from ..trainer_utils import create_modelcard_and_push, create_ref_model
 from .trainer import CustomKTOTrainer
 
-
 if TYPE_CHECKING:
     from transformers import Seq2SeqTrainingArguments, TrainerCallback
 

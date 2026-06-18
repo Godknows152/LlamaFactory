@@ -18,20 +18,17 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 import pytest
 import torch
-from PIL import Image
-
 from llamafactory.data.mm_plugin import get_mm_plugin
 from llamafactory.extras.packages import is_pyav_available, is_transformers_version_greater_than
 from llamafactory.hparams import get_infer_args
 from llamafactory.model import load_tokenizer
-
+from PIL import Image
 
 if TYPE_CHECKING:
-    from transformers import PreTrainedTokenizer, ProcessorMixin
-    from transformers.image_processing_utils import BaseImageProcessor
-
     from llamafactory.data.mm_plugin import BasePlugin
     from llamafactory.model.loader import TokenizerModule
+    from transformers import PreTrainedTokenizer, ProcessorMixin
+    from transformers.image_processing_utils import BaseImageProcessor
 
 
 HF_TOKEN = os.getenv("HF_TOKEN")

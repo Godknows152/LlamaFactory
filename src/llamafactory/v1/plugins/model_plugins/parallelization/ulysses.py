@@ -24,7 +24,6 @@ from torch.distributed import ProcessGroup
 
 from .seq_comm import SeqAllToAll4D
 
-
 _ULYSSES_SEQUENCE_PARALLEL_GROUP = None
 
 

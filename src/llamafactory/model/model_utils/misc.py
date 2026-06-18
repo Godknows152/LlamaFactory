@@ -17,7 +17,6 @@ from typing import TYPE_CHECKING
 from ...extras import logging
 from .visual import COMPOSITE_MODELS
 
-
 if TYPE_CHECKING:
     from transformers import PretrainedConfig, PreTrainedModel, PreTrainedTokenizer
 

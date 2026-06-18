@@ -25,7 +25,6 @@ from .model_utils.quantization import QuantizationMethod
 from .model_utils.unsloth import get_unsloth_peft_model, load_unsloth_peft_model
 from .model_utils.visual import COMPOSITE_MODELS, get_forbidden_modules, patch_target_modules
 
-
 if TYPE_CHECKING:
     from transformers import PretrainedConfig, PreTrainedModel
 

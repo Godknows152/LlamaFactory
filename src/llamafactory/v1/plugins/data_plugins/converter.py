@@ -20,7 +20,6 @@ from ...utils import logging
 from ...utils.plugin import BasePlugin
 from ...utils.types import DPOSample, Sample, SFTSample, ToolCall
 
-
 logger = logging.get_logger(__name__)
 
 

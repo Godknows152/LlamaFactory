@@ -14,7 +14,6 @@
 
 import pytest
 import torch
-
 from llamafactory.model.model_utils.packing import get_seqlens_in_batch, get_unpad_data
 
 

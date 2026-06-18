@@ -25,7 +25,6 @@ from ..trainer_utils import create_modelcard_and_push
 from .metric import ComputeAccuracy
 from .trainer import PairwiseTrainer
 
-
 if TYPE_CHECKING:
     from transformers import Seq2SeqTrainingArguments, TrainerCallback
 

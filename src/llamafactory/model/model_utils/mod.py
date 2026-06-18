@@ -16,7 +16,6 @@ from typing import TYPE_CHECKING
 
 from ...extras.constants import MOD_SUPPORTED_MODELS
 
-
 if TYPE_CHECKING:
     from transformers import PretrainedConfig, PreTrainedModel
 

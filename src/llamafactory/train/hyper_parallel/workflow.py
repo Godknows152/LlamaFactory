@@ -28,7 +28,6 @@ from ..sft.metric import ComputeAccuracy, ComputeSimilarity, eval_logit_processo
 from ..trainer_utils import create_modelcard_and_push, create_ref_model
 from .trainer import HyperParallelTrainer
 
-
 if TYPE_CHECKING:
     from transformers import Seq2SeqTrainingArguments, TrainerCallback
 

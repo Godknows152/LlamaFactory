@@ -29,7 +29,6 @@ from ...extras.constants import SUPPORTED_CLASS_FOR_S2ATTN
 from ...extras.misc import check_version
 from ...extras.packages import is_transformers_version_greater_than
 
-
 if not is_transformers_version_greater_than("4.48.0"):
     from transformers.modeling_flash_attention_utils import _flash_attention_forward
     from transformers.models.llama.modeling_llama import (

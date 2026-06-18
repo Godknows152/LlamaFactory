@@ -15,7 +15,6 @@
 from collections.abc import Generator
 from typing import TYPE_CHECKING
 
-
 if TYPE_CHECKING:
     from gradio.components import Component
 

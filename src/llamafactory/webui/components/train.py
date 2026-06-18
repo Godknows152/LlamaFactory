@@ -23,7 +23,6 @@ from ..common import DEFAULT_DATA_DIR
 from ..control import change_stage, list_checkpoints, list_config_paths, list_datasets, list_output_dirs
 from .data import create_preview_box
 
-
 if is_gradio_available():
     import gradio as gr
 

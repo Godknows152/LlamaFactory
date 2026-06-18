@@ -28,7 +28,6 @@ from tqdm import tqdm
 from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer, PreTrainedModel
 from transformers.modeling_utils import SAFE_WEIGHTS_INDEX_NAME, SAFE_WEIGHTS_NAME, WEIGHTS_INDEX_NAME, WEIGHTS_NAME
 
-
 if TYPE_CHECKING:
     from transformers import PretrainedConfig
 

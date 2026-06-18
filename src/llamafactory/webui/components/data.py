@@ -19,7 +19,6 @@ from typing import TYPE_CHECKING, Any
 from ...extras.constants import DATA_CONFIG
 from ...extras.packages import is_gradio_available
 
-
 if is_gradio_available():
     import gradio as gr
 

@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import pytest
-
 from llamafactory.v1.config import ModelArguments, SampleArguments
 from llamafactory.v1.core.model_engine import ModelEngine
 from llamafactory.v1.samplers.cli_sampler import SyncSampler

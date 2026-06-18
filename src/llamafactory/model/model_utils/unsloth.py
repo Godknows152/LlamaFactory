@@ -17,7 +17,6 @@ from typing import TYPE_CHECKING, Any, Optional
 from ...extras import logging
 from ...extras.misc import get_current_device
 
-
 if TYPE_CHECKING:
     from transformers import PretrainedConfig, PreTrainedModel
 

@@ -27,7 +27,6 @@ from .model_args import ModelArguments
 from .sample_args import SampleArguments
 from .training_args import TrainingArguments
 
-
 InputArgument = dict[str, Any] | list[str] | None
 
 

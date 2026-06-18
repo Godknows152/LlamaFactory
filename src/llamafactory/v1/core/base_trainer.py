@@ -48,7 +48,6 @@ from .utils.batching import BatchGenerator
 from .utils.checkpoint import TrainingCheckpointCoordinator
 from .utils.rendering import Renderer
 
-
 logger = logging.get_logger(__name__)
 
 

@@ -30,7 +30,6 @@ from ...extras import logging
 from ...extras.constants import FILEEXT2TYPE, QuantizationMethod
 from ...extras.misc import check_version, get_current_device
 
-
 if TYPE_CHECKING:
     from transformers import PretrainedConfig, PreTrainedTokenizer
 

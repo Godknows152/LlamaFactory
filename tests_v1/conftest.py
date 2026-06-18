@@ -23,12 +23,10 @@ import sys
 import pytest
 import torch
 import torch.distributed as dist
-from pytest import Config, FixtureRequest, Item, MonkeyPatch
-
 from llamafactory.v1.accelerator.helper import get_current_accelerator, get_device_count
 from llamafactory.v1.utils.env import is_env_enabled
 from llamafactory.v1.utils.packages import is_transformers_version_greater_than
-
+from pytest import Config, FixtureRequest, Item, MonkeyPatch
 
 CURRENT_DEVICE = get_current_accelerator().type
 

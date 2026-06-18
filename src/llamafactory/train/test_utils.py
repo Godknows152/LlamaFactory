@@ -23,7 +23,6 @@ from ..data import get_dataset, get_template_and_fix_tokenizer
 from ..hparams import get_infer_args, get_train_args
 from ..model import load_model, load_tokenizer
 
-
 if TYPE_CHECKING:
     from peft import LoraModel
     from transformers import PreTrainedModel

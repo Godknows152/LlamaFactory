@@ -17,11 +17,9 @@ import random
 
 import pytest
 from datasets import load_dataset
-from transformers import AutoTokenizer
-
 from llamafactory.extras.packages import is_transformers_version_greater_than
 from llamafactory.train.test_utils import load_dataset_module
-
+from transformers import AutoTokenizer
 
 DEMO_DATA = os.getenv("DEMO_DATA", "llamafactory/demo_data")
 

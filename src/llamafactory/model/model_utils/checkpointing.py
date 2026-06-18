@@ -30,7 +30,6 @@ import torch
 from ...extras import logging
 from ...extras.constants import LAYERNORM_NAMES
 
-
 if TYPE_CHECKING:
     from transformers import PreTrainedModel
 

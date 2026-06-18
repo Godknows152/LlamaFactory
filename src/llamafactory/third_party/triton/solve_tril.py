@@ -24,7 +24,6 @@ import triton.language as tl
 
 from .utils import input_guard, make_tensor_descriptor, prepare_chunk_indices
 
-
 FLA_TRIL_PRECISION = os.environ.get("FLA_TRIL_PRECISION", "ieee")
 
 

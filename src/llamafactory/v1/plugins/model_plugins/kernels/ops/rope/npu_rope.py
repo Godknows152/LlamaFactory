@@ -30,7 +30,6 @@ from ......utils.types import HFModel
 from ...base import BaseKernel
 from ...registry import register_kernel
 
-
 logger = get_logger(__name__)
 
 try:

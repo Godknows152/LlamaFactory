@@ -18,7 +18,6 @@ from typing import TYPE_CHECKING, Any, Optional
 
 from ..extras import logging
 
-
 if TYPE_CHECKING:
     from ..hparams import TrainingArguments
 

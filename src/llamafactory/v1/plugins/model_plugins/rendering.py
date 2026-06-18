@@ -18,7 +18,6 @@ from ...utils import logging
 from ...utils.plugin import BasePlugin
 from ...utils.types import Message, ModelInput, Processor
 
-
 logger = logging.get_logger(__name__)
 
 

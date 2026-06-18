@@ -14,7 +14,6 @@
 
 
 import pytest
-
 from llamafactory.data.processor.processor_utils import infer_seqlen
 
 

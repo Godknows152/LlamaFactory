@@ -27,7 +27,6 @@ from ...extras.constants import IGNORE_INDEX
 from ...extras.misc import numpify
 from ...extras.packages import is_jieba_available, is_rouge_available
 
-
 if TYPE_CHECKING:
     from transformers import EvalPrediction, PreTrainedTokenizer
 

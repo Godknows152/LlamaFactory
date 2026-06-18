@@ -33,7 +33,6 @@ from ..model import QuantizationMethod
 from .common import DEFAULT_CONFIG_DIR, DEFAULT_DATA_DIR, get_model_path, get_save_dir, get_template, load_dataset_info
 from .locales import ALERTS
 
-
 if is_gradio_available():
     import gradio as gr
 

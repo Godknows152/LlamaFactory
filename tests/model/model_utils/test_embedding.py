@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import torch
-
 from llamafactory.model.model_utils.embedding import (
     _description_based_initialization,
     _existing_embeddings,

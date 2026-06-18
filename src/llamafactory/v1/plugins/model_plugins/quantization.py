@@ -26,7 +26,6 @@ from ...utils import logging
 from ...utils.packages import check_version
 from ...utils.plugin import BasePlugin
 
-
 if TYPE_CHECKING:
     from transformers import PretrainedConfig, PreTrainedTokenizer
 

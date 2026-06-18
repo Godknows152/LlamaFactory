@@ -1,0 +1,55 @@
+### model
+model_name_or_path: /home/LXJ/Python_Projects/Models/Qwen3.5-9B
+trust_remote_code: true
+resize_vocab: false
+image_max_pixels: 262144
+
+### method
+stage: sft
+do_train: true
+finetuning_type: lora
+create_new_adapter: true
+lora_target: all
+lora_rank: 16
+lora_alpha: 32
+lora_dropout: 0.05
+freeze_vision_tower: true
+freeze_multi_modal_projector: true
+freeze_language_model: false
+
+### dataset
+dataset: image_restoration_fog_expert_format_train
+dataset_dir: /home/LXJ/Python_Projects/Agent_Lightning/LlamaFactory/image_restoration_experts/data
+media_dir: /home/LXJ/Python_Projects/Agent_Lightning/LlamaFactory/image_restoration_experts/data
+template: qwen3_5_nothink
+enable_thinking: false
+cutoff_len: 4096
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 4
+
+### output
+output_dir: /home/LXJ/Python_Projects/Agent_Lightning/LlamaFactory/image_restoration_experts/outputs/qwen3_5/format_cold_start/fog
+logging_steps: 2
+save_steps: 50
+save_total_limit: 3
+plot_loss: true
+overwrite_output_dir: true
+report_to: none
+use_swanlab: true
+swanlab_project: image-restoration-multi-agent
+swanlab_run_name: qwen3.5-fog-expert-format-cold-start-sft
+swanlab_mode: cloud
+swanlab_logdir: /home/LXJ/Python_Projects/Agent_Lightning/LlamaFactory/image_restoration_experts/outputs/qwen3_5/format_cold_start/fog/swanlab
+
+### train
+per_device_train_batch_size: 8
+gradient_accumulation_steps: 2
+learning_rate: 5.0e-5
+num_train_epochs: 1.0
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+bf16: true
+gradient_checkpointing: true
+ddp_timeout: 180000000
+seed: 20260616

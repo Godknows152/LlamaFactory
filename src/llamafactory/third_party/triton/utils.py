@@ -30,7 +30,6 @@ import triton.language.extra.libdevice as tldevice
 import triton.runtime.driver as driver
 from packaging import version
 
-
 logger = logging.getLogger(__name__)
 
 FLA_CI_ENV = os.getenv("FLA_CI_ENV") == "1"

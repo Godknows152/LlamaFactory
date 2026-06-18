@@ -17,11 +17,9 @@ import types
 import pytest
 import torch
 import torch.nn as nn
-from safetensors.torch import save_file
-
 from llamafactory.v1.accelerator.interface import DistributedInterface
 from llamafactory.v1.plugins.trainer_plugins.distributed.fsdp2 import FSDP2Engine
-
+from safetensors.torch import save_file
 
 NUM_EXPERTS = 11
 HIDDEN_SIZE = 3

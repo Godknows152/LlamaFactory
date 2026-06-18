@@ -26,7 +26,6 @@ import types
 import torch
 import torch.nn.functional as F
 
-
 try:
     import torch_npu
 except ImportError:

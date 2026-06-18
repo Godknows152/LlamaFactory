@@ -32,7 +32,6 @@ from ..callbacks import SaveProcessorCallback
 from ..fp8_utils import configure_fp8_environment, patch_accelerator_for_fp8, verify_fp8_status
 from ..trainer_utils import create_custom_optimizer, create_custom_scheduler
 
-
 if TYPE_CHECKING:
     from torch.utils.data import Dataset
     from transformers import ProcessorMixin

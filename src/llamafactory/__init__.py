@@ -27,5 +27,4 @@ Use openmind: USE_OPENMIND_HUB=1
 
 from .extras.env import VERSION
 
-
 __version__ = VERSION

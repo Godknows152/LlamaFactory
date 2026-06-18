@@ -25,7 +25,6 @@ from transformers.activations import ACT2FN
 
 from ...extras import logging
 
-
 if TYPE_CHECKING:
     from transformers import LlavaConfig, PretrainedConfig, PreTrainedModel
 

@@ -32,7 +32,6 @@ from .ulysses import (
     set_ulysses_sequence_parallel_group,
 )
 
-
 logger = logging.get_logger(__name__)
 
 

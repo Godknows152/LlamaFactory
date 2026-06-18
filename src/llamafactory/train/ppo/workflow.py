@@ -24,7 +24,6 @@ from ..callbacks import fix_valuehead_checkpoint
 from ..trainer_utils import create_ref_model, create_reward_model
 from .trainer import CustomPPOTrainer
 
-
 if TYPE_CHECKING:
     from transformers import Seq2SeqTrainingArguments, TrainerCallback
 

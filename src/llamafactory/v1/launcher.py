@@ -17,7 +17,6 @@ import subprocess
 import sys
 from copy import deepcopy
 
-
 USAGE = (
     "-" * 70
     + "\n"

@@ -21,7 +21,6 @@ from typing import TYPE_CHECKING, Any
 from .. import logging
 from .trainer_callback import TrainerCallback, TrainerState
 
-
 if TYPE_CHECKING:
     from ...config import TrainingArguments
 

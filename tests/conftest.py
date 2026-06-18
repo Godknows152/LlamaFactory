@@ -22,12 +22,10 @@ import os
 import pytest
 import torch
 import torch.distributed as dist
-from pytest import Config, FixtureRequest, Item, MonkeyPatch
-
 from llamafactory.extras.misc import get_current_device, get_device_count, is_env_enabled
 from llamafactory.extras.packages import is_transformers_version_greater_than
 from llamafactory.train.test_utils import patch_valuehead_model
-
+from pytest import Config, FixtureRequest, Item, MonkeyPatch
 
 CURRENT_DEVICE = get_current_device().type
 

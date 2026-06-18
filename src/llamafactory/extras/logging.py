@@ -25,7 +25,6 @@ from typing import Optional
 
 from .constants import RUNNING_LOG
 
-
 _thread_lock = threading.RLock()
 _default_handler: Optional["logging.Handler"] = None
 _default_log_level: "logging._Level" = logging.INFO

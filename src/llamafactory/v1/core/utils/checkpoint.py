@@ -29,7 +29,6 @@ from ...accelerator.helper import DeviceType, get_current_accelerator
 from ...accelerator.interface import DistributedInterface
 from ...utils import logging
 
-
 logger = logging.get_logger(__name__)
 
 CHECKPOINT_COMPLETE_MARKER = "CHECKPOINT_COMPLETE"

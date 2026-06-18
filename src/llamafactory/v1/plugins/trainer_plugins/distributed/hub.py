@@ -21,7 +21,6 @@ import torch
 from ....config.arg_utils import PluginConfig
 from ....utils.plugin import BasePlugin
 
-
 if TYPE_CHECKING:
     from ....utils.types import HFModel, Processor
 

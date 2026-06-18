@@ -18,10 +18,8 @@ import os
 import fire
 import torch
 import torch.distributed as dist
-from transformers import AutoConfig
-
 from llamafactory.train.tuner import run_exp
-
+from transformers import AutoConfig
 
 BASE = 2  # gemm (add + mul)
 

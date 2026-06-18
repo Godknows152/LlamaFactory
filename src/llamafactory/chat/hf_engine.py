@@ -28,7 +28,6 @@ from ..extras.constants import AUDIO_PLACEHOLDER, IMAGE_PLACEHOLDER, VIDEO_PLACE
 from ..model import load_model, load_tokenizer
 from .base_engine import BaseEngine, Response
 
-
 if TYPE_CHECKING:
     from transformers import PreTrainedModel, PreTrainedTokenizer, ProcessorMixin
     from trl import PreTrainedModelWrapper

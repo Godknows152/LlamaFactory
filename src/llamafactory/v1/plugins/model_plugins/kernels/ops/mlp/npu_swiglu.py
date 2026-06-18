@@ -30,7 +30,6 @@ from ......utils.types import HFModel
 from ...base import BaseKernel
 from ...registry import register_kernel
 
-
 try:
     import torch_npu
 except ImportError:

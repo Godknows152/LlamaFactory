@@ -36,7 +36,6 @@ from ..extras.constants import TRAINER_LOG, V_HEAD_SAFE_WEIGHTS_NAME, V_HEAD_WEI
 from ..extras.misc import get_peak_memory, is_env_enabled, is_torch_cuda_available, is_torch_npu_available, use_ray
 from ..extras.packages import is_safetensors_available
 
-
 if is_safetensors_available():
     from safetensors import safe_open
     from safetensors.torch import save_file

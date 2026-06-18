@@ -14,7 +14,6 @@
 
 from transformers import AutoTokenizer, Qwen3Config, Qwen3ForCausalLM
 
-
 if __name__ == "__main__":
     tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen3-4B-Instruct-2507")
     config = Qwen3Config(

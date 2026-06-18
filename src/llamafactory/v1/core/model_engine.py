@@ -40,7 +40,6 @@ from ..utils import logging
 from ..utils.types import HFConfig, HFModel, Processor
 from .utils.rendering import Renderer
 
-
 logger = logging.get_logger(__name__)
 
 

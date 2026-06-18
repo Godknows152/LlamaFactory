@@ -15,9 +15,7 @@
 import os
 
 import pytest
-
 from llamafactory.train.tuner import export_model, run_exp
-
 
 DEMO_DATA = os.getenv("DEMO_DATA", "llamafactory/demo_data")
 

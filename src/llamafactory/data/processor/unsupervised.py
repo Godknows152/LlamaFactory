@@ -19,7 +19,6 @@ from ...extras import logging
 from ..data_utils import Role
 from .processor_utils import DatasetProcessor, infer_seqlen
 
-
 if TYPE_CHECKING:
     from ..mm_plugin import AudioInput, ImageInput, VideoInput
 

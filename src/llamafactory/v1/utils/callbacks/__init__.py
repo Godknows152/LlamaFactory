@@ -15,7 +15,6 @@
 from .logging_callback import LoggingCallback
 from .trainer_callback import CallbackHandler, TrainerCallback, TrainerState
 
-
 __all__ = [
     "CallbackHandler",
     "LoggingCallback",

@@ -24,7 +24,6 @@ from ...utils import logging
 from ...utils.plugin import BasePlugin
 from ...utils.types import HFModel
 
-
 logger = logging.get_logger(__name__)
 
 

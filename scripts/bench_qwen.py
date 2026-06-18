@@ -18,15 +18,14 @@ from typing import Any
 
 import fire
 import torch
-from peft import PeftModel
-from torch.utils.data import Dataset
-from transformers import DataCollatorForSeq2Seq, Qwen2_5_VLProcessor
-
 from llamafactory.extras.constants import IGNORE_INDEX
 from llamafactory.hparams import get_train_args
 from llamafactory.model import load_model, load_tokenizer
 from llamafactory.train.callbacks import LogCallback
 from llamafactory.train.sft.trainer import CustomSeq2SeqTrainer
+from peft import PeftModel
+from torch.utils.data import Dataset
+from transformers import DataCollatorForSeq2Seq, Qwen2_5_VLProcessor
 
 
 class DummyDataset(Dataset):

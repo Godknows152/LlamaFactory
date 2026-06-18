@@ -24,7 +24,6 @@ from .data_utils import Role
 from .formatter import EmptyFormatter, FunctionFormatter, StringFormatter, ToolFormatter
 from .mm_plugin import get_mm_plugin
 
-
 if TYPE_CHECKING:
     from transformers import PreTrainedTokenizer
 

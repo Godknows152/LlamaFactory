@@ -23,7 +23,6 @@ Init Phase:
 from ....accelerator.helper import get_current_accelerator
 from .base import BaseKernel
 
-
 __all__ = ["Registry", "register_kernel"]
 
 

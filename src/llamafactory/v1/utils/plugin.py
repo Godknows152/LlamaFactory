@@ -19,7 +19,6 @@ from typing import Any
 
 from . import logging
 
-
 logger = logging.get_logger(__name__)
 
 

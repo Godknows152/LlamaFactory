@@ -16,13 +16,11 @@ import os
 from typing import TYPE_CHECKING
 
 import pytest
-from transformers import AutoTokenizer
-
 from llamafactory.data import get_template_and_fix_tokenizer
 from llamafactory.data.template import parse_template
 from llamafactory.extras.packages import is_transformers_version_greater_than
 from llamafactory.hparams import DataArguments
-
+from transformers import AutoTokenizer
 
 if TYPE_CHECKING:
     from transformers import PreTrainedTokenizer

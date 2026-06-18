@@ -14,7 +14,6 @@
 
 from transformers import Llama4Config, Llama4ForConditionalGeneration, Llama4TextConfig, Llama4VisionConfig
 
-
 if __name__ == "__main__":
     vision_config = Llama4VisionConfig(
         hidden_size=1408,

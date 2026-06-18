@@ -27,7 +27,6 @@ from ....utils.logging import get_logger
 from ....utils.types import HFModel
 from .base import BaseKernel
 
-
 logger = get_logger(__name__)
 
 _LIGER_FN_BY_MODEL_TYPE: dict[str, str] = {

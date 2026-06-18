@@ -26,7 +26,6 @@ from tqdm import tqdm
 from transformers.modeling_utils import SAFE_WEIGHTS_INDEX_NAME, SAFE_WEIGHTS_NAME, WEIGHTS_INDEX_NAME, WEIGHTS_NAME
 from transformers.utils import check_min_version
 
-
 try:
     check_min_version("4.34.0")
 except Exception:

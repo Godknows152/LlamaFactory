@@ -19,7 +19,6 @@ from ..common import DEFAULT_DATA_DIR
 from ..control import list_datasets
 from .data import create_preview_box
 
-
 if is_gradio_available():
     import gradio as gr
 

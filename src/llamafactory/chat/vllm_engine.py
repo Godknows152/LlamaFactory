@@ -29,7 +29,6 @@ from ..model.model_utils.quantization import QuantizationMethod
 from ..model.model_utils.visual import LlavaMultiModalProjectorForYiVLForVLLM
 from .base_engine import BaseEngine, Response
 
-
 if is_vllm_available():
     from vllm import AsyncEngineArgs, AsyncLLMEngine, RequestOutput, SamplingParams
     from vllm.lora.request import LoRARequest

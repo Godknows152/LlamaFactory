@@ -29,7 +29,6 @@ from ...extras.packages import is_transformers_version_greater_than
 from ..callbacks import FixValueHeadModelCallback, SaveProcessorCallback
 from ..trainer_utils import create_custom_optimizer, create_custom_scheduler
 
-
 if TYPE_CHECKING:
     from transformers import PreTrainedModel, ProcessorMixin
     from transformers.trainer import PredictionOutput

@@ -13,12 +13,10 @@
 # limitations under the License.
 
 import pytest
-from peft import LoraConfig, PeftModel, get_peft_model
-from transformers import AutoModelForCausalLM, AutoTokenizer
-
 from llamafactory.v1.plugins.model_plugins import peft as peft_module
 from llamafactory.v1.plugins.model_plugins.peft import merge_and_export_model
-
+from peft import LoraConfig, PeftModel, get_peft_model
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 TINY_MODEL = "llamafactory/tiny-random-qwen3"
 

@@ -20,15 +20,13 @@ from typing import Literal
 
 import fire
 import torch
-from torch.utils.data import DataLoader
-from tqdm import tqdm
-from transformers import DataCollatorForLanguageModeling
-
 from llamafactory.data import MultiModalDataCollatorForSeq2Seq, get_dataset, get_template_and_fix_tokenizer
 from llamafactory.extras.constants import IGNORE_INDEX
 from llamafactory.hparams import get_train_args
 from llamafactory.model import load_tokenizer
-
+from torch.utils.data import DataLoader
+from tqdm import tqdm
+from transformers import DataCollatorForLanguageModeling
 
 BASE_LR = 3e-4  # 1.5e-4 for 30B-70B models
 BASE_BS = 4_000_000  # from llama paper

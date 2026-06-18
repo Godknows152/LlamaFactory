@@ -17,7 +17,6 @@ import os
 from openai import OpenAI
 from transformers.utils.versions import require_version
 
-
 require_version("openai>=1.5.0", "To fix: pip install openai>=1.5.0")
 
 

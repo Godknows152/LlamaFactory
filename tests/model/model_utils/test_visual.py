@@ -16,12 +16,11 @@ import os
 
 import pytest
 import torch
-from safetensors.torch import load_file
-from transformers import AutoConfig, AutoModelForImageTextToText
-
 from llamafactory.extras.packages import is_transformers_version_greater_than
 from llamafactory.hparams import FinetuningArguments, ModelArguments
 from llamafactory.model.adapter import init_adapter
+from safetensors.torch import load_file
+from transformers import AutoConfig, AutoModelForImageTextToText
 
 
 @pytest.mark.parametrize("freeze_vision_tower", (False, True))

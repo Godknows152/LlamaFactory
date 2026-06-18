@@ -39,7 +39,6 @@ from ...utils.objects import StatefulBuffer
 from ...utils.types import BatchInfo, BatchInput, ModelInput, TorchDataset
 from .rendering import Renderer
 
-
 logger = logging.get_logger(__name__)
 
 __all__ = ["BatchGenerator"]

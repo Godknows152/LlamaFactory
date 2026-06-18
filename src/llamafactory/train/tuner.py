@@ -53,7 +53,6 @@ from .trainer_utils import (
     sort_placement_group_by_node_ip,
 )
 
-
 if is_ray_available():
     import ray
 

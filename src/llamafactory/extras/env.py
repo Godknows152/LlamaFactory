@@ -18,7 +18,6 @@
 
 from collections import OrderedDict
 
-
 VERSION = "0.9.6.dev0"
 
 

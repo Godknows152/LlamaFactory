@@ -20,7 +20,6 @@ from .locales import LOCALES
 from .manager import Manager
 from .runner import Runner
 
-
 if TYPE_CHECKING:
     from gradio.components import Component
 

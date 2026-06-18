@@ -15,7 +15,6 @@
 from enum import StrEnum, unique
 from typing import TYPE_CHECKING, Any, Literal, NamedTuple, NotRequired, TypedDict, Union
 
-
 if TYPE_CHECKING:
     import datasets
     import numpy as np

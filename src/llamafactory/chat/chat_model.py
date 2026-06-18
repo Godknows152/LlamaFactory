@@ -25,7 +25,6 @@ from ..extras.constants import EngineName
 from ..extras.misc import torch_gc
 from ..hparams import get_infer_args
 
-
 if TYPE_CHECKING:
     from ..data.mm_plugin import AudioInput, ImageInput, VideoInput
     from .base_engine import BaseEngine, Response

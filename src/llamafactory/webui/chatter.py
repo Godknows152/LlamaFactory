@@ -28,7 +28,6 @@ from ..extras.packages import is_gradio_available
 from .common import get_save_dir, load_config
 from .locales import ALERTS
 
-
 if TYPE_CHECKING:
     from ..chat import BaseEngine
     from .manager import Manager

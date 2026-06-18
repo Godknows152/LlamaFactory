@@ -15,12 +15,11 @@
 import json
 
 import pytest
-from transformers import AutoTokenizer
-
 from llamafactory.v1.config import DataArguments
 from llamafactory.v1.core.data_engine import DataEngine
 from llamafactory.v1.core.utils.rendering import Renderer
 from llamafactory.v1.utils.types import Processor
+from transformers import AutoTokenizer
 
 
 def _get_input_ids(inputs: list | dict) -> list:

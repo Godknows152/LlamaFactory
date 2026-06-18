@@ -36,7 +36,6 @@ from .protocol import (
     ScoreEvaluationResponse,
 )
 
-
 if is_fastapi_available():
     from fastapi import Depends, FastAPI, HTTPException, status
     from fastapi.middleware.cors import CORSMiddleware

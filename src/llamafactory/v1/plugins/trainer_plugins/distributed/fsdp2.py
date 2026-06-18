@@ -38,7 +38,6 @@ from ....accelerator.interface import DistributedInterface
 from ....utils.logging import get_logger
 from ....utils.types import HFModel, Processor
 
-
 logger = get_logger(__name__)
 
 

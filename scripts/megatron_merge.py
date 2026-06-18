@@ -24,7 +24,6 @@ from mcore_adapter.training_args import DistributingParallelArguments
 from mcore_adapter.utils import get_logger
 from transformers import AutoConfig
 
-
 logger = get_logger(__name__)
 
 

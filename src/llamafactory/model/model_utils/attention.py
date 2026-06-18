@@ -18,7 +18,6 @@ from ...extras import logging
 from ...extras.constants import AttentionFunction
 from ...extras.packages import is_torch_version_greater_than
 
-
 if TYPE_CHECKING:
     from transformers import PretrainedConfig
 

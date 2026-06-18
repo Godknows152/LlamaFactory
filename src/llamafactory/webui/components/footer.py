@@ -17,7 +17,6 @@ from typing import TYPE_CHECKING
 from ...extras.misc import get_current_memory
 from ...extras.packages import is_gradio_available
 
-
 if is_gradio_available():
     import gradio as gr
 

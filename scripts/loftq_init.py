@@ -22,7 +22,6 @@ import fire
 from peft import LoftQConfig, LoraConfig, TaskType, get_peft_model
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-
 if TYPE_CHECKING:
     from transformers import PreTrainedModel
 

@@ -41,7 +41,6 @@ from .protocol import (
     ScoreEvaluationResponse,
 )
 
-
 if is_fastapi_available():
     from fastapi import HTTPException, status
 

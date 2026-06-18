@@ -15,9 +15,7 @@
 import os
 
 import pytest
-
 from llamafactory.train.test_utils import load_dataset_module
-
 
 DEMO_DATA = os.getenv("DEMO_DATA", "llamafactory/demo_data")
 

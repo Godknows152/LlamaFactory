@@ -15,9 +15,7 @@
 import os
 
 import pytest
-
 from llamafactory.chat import ChatModel
-
 
 TINY_LLAMA3 = os.getenv("TINY_LLAMA3", "llamafactory/tiny-random-Llama-3")
 

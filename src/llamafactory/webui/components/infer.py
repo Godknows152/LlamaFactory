@@ -18,7 +18,6 @@ from ...extras.packages import is_gradio_available
 from ..common import is_multimodal
 from .chatbot import create_chat_box
 
-
 if is_gradio_available():
     import gradio as gr
 

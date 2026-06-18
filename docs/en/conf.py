@@ -1,12 +1,10 @@
 import os
 import sys
 
-
 # Add parent dir to path to allow importing conf.py
 sys.path.insert(0, os.path.abspath(".."))
 
 from conf import *  # noqa: F403
-
 
 # Language settings
 language = "en"

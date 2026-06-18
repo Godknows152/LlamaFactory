@@ -22,7 +22,6 @@ from urllib.parse import urlparse
 from ..extras.misc import is_env_enabled
 from ..extras.packages import is_fastapi_available
 
-
 if is_fastapi_available():
     from fastapi import HTTPException, status
 

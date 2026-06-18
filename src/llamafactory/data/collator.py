@@ -29,7 +29,6 @@ from transformers import DataCollatorForSeq2Seq
 from ..extras.constants import AUDIO_PLACEHOLDER, IGNORE_INDEX, IMAGE_PLACEHOLDER, MROPE_MODELS
 from ..extras.packages import is_pillow_available
 
-
 if is_pillow_available():
     from PIL import Image
 

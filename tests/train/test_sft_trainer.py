@@ -17,13 +17,11 @@ from dataclasses import dataclass, field
 from typing import Any
 
 import pytest
-from transformers import DataCollatorWithPadding
-
 from llamafactory.data import get_dataset, get_template_and_fix_tokenizer
 from llamafactory.hparams import get_train_args
 from llamafactory.model import load_model, load_tokenizer
 from llamafactory.train.sft.trainer import CustomSeq2SeqTrainer
-
+from transformers import DataCollatorWithPadding
 
 DEMO_DATA = os.getenv("DEMO_DATA", "llamafactory/demo_data")
 

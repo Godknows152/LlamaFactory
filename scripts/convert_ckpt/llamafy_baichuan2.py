@@ -24,7 +24,6 @@ from safetensors.torch import save_file
 from tqdm import tqdm
 from transformers.modeling_utils import SAFE_WEIGHTS_INDEX_NAME, SAFE_WEIGHTS_NAME, WEIGHTS_INDEX_NAME, WEIGHTS_NAME
 
-
 CONFIG_NAME = "config.json"
 
 

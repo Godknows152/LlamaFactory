@@ -38,7 +38,6 @@ from ...extras.ploting import plot_loss
 from ...model import load_tokenizer
 from ..callbacks import SaveProcessorCallback
 
-
 if not is_mcore_adapter_available():
     raise ImportError("mcore_adapter is not installed. Please install it with `pip install mcore-adapter`.")
 
@@ -47,7 +46,6 @@ from mcore_adapter.trainer import DPOTrainer as McaDPOTrainer
 from mcore_adapter.trainer.dpo_config import DPOConfig
 
 from .trainer import CustomMcaTrainer
-
 
 if TYPE_CHECKING:
     from mcore_adapter.training_args import Seq2SeqTrainingArguments as McaSeq2SeqTrainingArguments

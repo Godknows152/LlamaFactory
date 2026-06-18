@@ -13,10 +13,8 @@
 # limitations under the License.
 
 import pytest
-
 from llamafactory.v1.config.model_args import ModelArguments
 from llamafactory.v1.core.model_engine import ModelEngine
-
 
 bitsandbytes = pytest.importorskip("bitsandbytes")
 

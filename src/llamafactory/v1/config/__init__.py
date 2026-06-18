@@ -20,7 +20,6 @@ from .model_args import ModelArguments
 from .sample_args import SampleArguments
 from .training_args import TrainingArguments
 
-
 __all__ = [
     "AttentionFunction",
     "BatchingStrategy",

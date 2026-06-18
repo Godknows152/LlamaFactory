@@ -53,7 +53,6 @@ from ..hparams import get_eval_args
 from ..model import load_model, load_tokenizer
 from .template import get_eval_template
 
-
 if TYPE_CHECKING:
     from numpy.typing import NDArray
 

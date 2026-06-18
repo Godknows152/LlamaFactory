@@ -179,5 +179,7 @@ output/
 outputs/
 wandb/
 swanlog/
+/log/*
+!/log/.gitkeep
 generated_predictions.jsonl
 predictions_score.json

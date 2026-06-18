@@ -19,7 +19,6 @@ import numpy as np
 
 from ...extras.misc import numpify
 
-
 if TYPE_CHECKING:
     from transformers import EvalPrediction
 
