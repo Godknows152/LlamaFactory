@@ -21,8 +21,8 @@ freeze_language_model: false
 dataset: image_restoration_rain_expert_format_train
 dataset_dir: /home/LXJ/Python_Projects/Agent_Lightning/LlamaFactory/image_restoration_experts/data
 media_dir: /home/LXJ/Python_Projects/Agent_Lightning/LlamaFactory/image_restoration_experts/data
-template: qwen3_5_nothink
-enable_thinking: false
+template: qwen3_5
+enable_thinking: true
 cutoff_len: 4096
 overwrite_cache: true
 preprocessing_num_workers: 16

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Build synthetic GRPO-format SFT data for the four restoration experts.
+"""Build thinking GRPO-format SFT data for the four restoration experts.
 
-The dataset is a format cold start, not a restoration-policy oracle. It reuses
-the existing expert images and creates independent visual transitions matching
-the prompts used by formal GRPO:
+The dataset is a format cold start with short, fixed thinking templates. It
+reuses the staged expert images and creates independent visual transitions
+matching the prompts used by formal GRPO:
 
 1. initial image-only action selection;
 2. action selection after a synthetic IQA improvement;
@@ -39,6 +39,44 @@ VARIANTS = (
     "continue_after_improvement",
     "switch_after_decline",
     "stop_after_sufficient_gain",
+)
+VARIANT_ACTION_OFFSETS = {
+    "initial_action": 0,
+    "continue_after_improvement": 5,
+    "switch_after_decline": 11,
+}
+
+ACTION_THINKING_GUIDES = {
+    "real_esrgan": "Real-ESRGAN is a general enhancement and super-resolution tool, so it is suitable when the image needs sharper texture and cleaner detail.",
+    "scunet": "SCUNet is a blind denoising tool, so it is suitable when the degraded image looks noisy or grainy.",
+    "retinexformer_fivek": "RetinexFormer FiveK is a low-light enhancement tool, so it is suitable when brightness and color balance need recovery.",
+    "hvicidnet": "HVI-CIDNet is a low-light enhancement tool, so it is suitable when dark regions need stronger illumination and contrast.",
+    "lightdiff": "LightenDiffusion is a low-light enhancement tool, so it is suitable when the scene is underexposed and needs brighter structure.",
+    "turbo_rain": "Img2img-turbo rain removal is a deraining tool, so it is suitable when rain streaks or wet-weather artifacts are likely.",
+    "s2former": "UDR-S2Former is a deraining tool, so it is suitable when directional rain streaks should be suppressed.",
+    "idt": "IDT is a deraining tool, so it is suitable when the image needs rain removal while preserving edges.",
+    "ridcp": "RIDCP is a dehazing tool, so it is suitable when haze lowers contrast and washes out distant content.",
+    "kanet": "KA-Net is a dehazing tool, so it is suitable when atmospheric haze should be reduced and visibility improved.",
+    "turbo_snow": "Img2img-turbo snow removal is a desnowing tool, so it is suitable when snow particles or snow veil artifacts are visible.",
+    "snowmaster": "SnowMaster is a desnowing tool, so it is suitable when snow occlusion needs to be removed cleanly.",
+    "nafnet_denoise": "NAFNet denoising is a restoration tool for noise suppression, so it is suitable when fine noise should be reduced.",
+    "focalnet_dehaze": "FocalNet dehazing is a haze-removal tool, so it is suitable when fog or haze reduces global visibility.",
+    "focalnet_desnow": "FocalNet desnowing is a snow-removal tool, so it is suitable when bright snow streaks or flakes obscure content.",
+    "mb_taylorformer_dehaze": "MB-TaylorFormer dehazing is a haze-removal tool, so it is suitable when foggy structure needs stronger dehazing.",
+    "stop": "The current synthetic state already has a sufficient best score, so stopping preserves the historical best result.",
+}
+
+THINKING_TEMPLATES = (
+    "The image is from the {degradation} expert stream. I see the degradation context and choose {action} because {guide}",
+    "This sample belongs to the {degradation} restoration task. I will call {action}; {guide}",
+    "The visible degradation should be handled by one registered restoration action. I select {action} because {guide}",
+    "For this {degradation} case, the next step should stay within the tool schema. I choose {action}; {guide}",
+    "The current image needs a simple restoration decision rather than extra text. I choose {action} because {guide}",
+    "The degradation context is {degradation}. I will use {action} since {guide}",
+    "I need one valid tool call for this restoration turn. The selected action is {action} because {guide}",
+    "The image quality can be improved or preserved with a schema-valid action. I choose {action}; {guide}",
+    "Given the {degradation} expert route, I should pick one restoration tool. I select {action} because {guide}",
+    "The response should include concise reasoning and then the tool call. I choose {action}; {guide}",
 )
 
 
@@ -97,6 +135,46 @@ def hermes_call(action: str) -> str:
     return "<tool_call>\n" + json.dumps(payload, separators=(",", ":")) + "\n</tool_call>"
 
 
+def thinking_text(*, action: str, degradation_type: str, template_index: int) -> str:
+    """Return one fixed, deterministic thinking string for the selected action."""
+
+    guide = ACTION_THINKING_GUIDES[action]
+    template = THINKING_TEMPLATES[template_index % len(THINKING_TEMPLATES)]
+    degradation = degradation_type.replace("_", " ")
+    return template.format(action=action, degradation=degradation, guide=guide)
+
+
+def assistant_target(*, action: str, degradation_type: str, template_index: int) -> str:
+    thought = thinking_text(action=action, degradation_type=degradation_type, template_index=template_index)
+    return "<think>\n" + thought + "\n</think>\n\n" + hermes_call(action)
+
+
+def rows_from_staged_images(data_dir: Path, label: str) -> list[dict[str, Any]]:
+    """Build source rows from staged image symlinks when legacy source JSONL is absent."""
+
+    image_dir = data_dir / "images" / label
+    image_paths = sorted(path for path in image_dir.iterdir() if path.is_file() or path.is_symlink())
+    return [
+        {
+            "images": [str(path.relative_to(data_dir))],
+            "sample_id": f"{label}-{path.stem}",
+            "degradation_type": label,
+            "expert_name": EXPERT_NAMES[label],
+        }
+        for path in image_paths
+    ]
+
+
+def balanced_actions(actions: list[str], count: int, *, seed: int) -> list[str]:
+    """Return a shuffled action list with counts differing by at most one."""
+
+    if count <= 0:
+        return []
+    repeated = [actions[index % len(actions)] for index in range(count)]
+    random.Random(seed).shuffle(repeated)
+    return repeated
+
+
 def synthetic_scores(aggregate_score: float) -> dict[str, float]:
     return {
         "maniqa": aggregate_score,
@@ -132,8 +210,7 @@ def history_step(
         "is_new_best": improved,
         "step_reward": delta_previous,
         "feedback": (
-            f"IQA aggregate {'improved' if improved else 'did not improve'}; "
-            f"aggregate_score={aggregate_score:.4f}."
+            f"IQA aggregate {'improved' if improved else 'did not improve'}; " f"aggregate_score={aggregate_score:.4f}."
         ),
         "error": None,
     }
@@ -167,7 +244,7 @@ def build_variants(
     *,
     image_row: dict[str, Any],
     image_index: int,
-    actions: list[str],
+    action_sequences: dict[str, list[str]],
     build_single_system,
     build_single_user,
     build_state_prompt,
@@ -175,9 +252,9 @@ def build_variants(
     expert,
     registry,
 ) -> list[dict[str, Any]]:
-    action_0 = actions[image_index % len(actions)]
-    action_1 = actions[(image_index + 5) % len(actions)]
-    action_2 = actions[(image_index + 11) % len(actions)]
+    action_0 = action_sequences["initial_action"][image_index]
+    action_1 = action_sequences["continue_after_improvement"][image_index]
+    action_2 = action_sequences["switch_after_decline"][image_index]
     original_score = 0.0
 
     history_1 = [
@@ -270,12 +347,20 @@ def build_variants(
     ]
 
     output = []
+    degradation_type = str(image_row["degradation_type"])
     for variant, system_prompt, user_prompt, target_action, step_index in definitions:
         output.append(
             {
                 "messages": [
                     {"role": "user", "content": user_prompt},
-                    {"role": "assistant", "content": hermes_call(target_action)},
+                    {
+                        "role": "assistant",
+                        "content": assistant_target(
+                            action=target_action,
+                            degradation_type=degradation_type,
+                            template_index=image_index + step_index,
+                        ),
+                    },
                 ],
                 "system": system_prompt,
                 "images": image_row["images"],
@@ -288,6 +373,7 @@ def build_variants(
                     "state_variant": variant,
                     "step_index": step_index,
                     "selected_action": target_action,
+                    "thinking_template_index": (image_index + step_index) % len(THINKING_TEMPLATES),
                     "synthetic_state": True,
                     "source_sample_id": image_row["sample_id"],
                 },
@@ -297,23 +383,30 @@ def build_variants(
 
 
 def validate_rows(rows: list[dict[str, Any]], actions: set[str]) -> None:
-    expected_prefix = "<tool_call>\n"
     for row in rows:
         if len(row["messages"]) != 2:
             raise ValueError(f"{row['sample_id']} does not contain one user/assistant pair")
         if not row["messages"][0]["content"].startswith("<image>\n"):
             raise ValueError(f"{row['sample_id']} is missing the image placeholder")
         assistant = row["messages"][1]["content"]
-        if not assistant.startswith(expected_prefix) or not assistant.endswith("\n</tool_call>"):
-            raise ValueError(f"{row['sample_id']} is not a pure Hermes response")
-        payload = json.loads(assistant.removeprefix(expected_prefix).removesuffix("\n</tool_call>"))
+        if not assistant.startswith("<think>\n") or "\n</think>\n\n<tool_call>\n" not in assistant:
+            raise ValueError(f"{row['sample_id']} is missing the required thinking/tool-call layout")
+        if assistant.count("<think>") != 1 or assistant.count("</think>") != 1:
+            raise ValueError(f"{row['sample_id']} must contain exactly one thinking block")
+        if assistant.count("<tool_call>") != 1 or assistant.count("</tool_call>") != 1:
+            raise ValueError(f"{row['sample_id']} must contain exactly one Hermes tool call")
+        payload_text = assistant.split("<tool_call>\n", 1)[1].removesuffix("\n</tool_call>")
+        payload = json.loads(payload_text)
         if payload.get("name") != "restore_image":
             raise ValueError(f"{row['sample_id']} uses an invalid function name")
         arguments = payload.get("arguments")
         if not isinstance(arguments, dict) or set(arguments) != {"action"}:
             raise ValueError(f"{row['sample_id']} uses invalid arguments")
-        if arguments["action"] not in actions | {"stop"}:
+        selected_action = arguments["action"]
+        if selected_action not in actions | {"stop"}:
             raise ValueError(f"{row['sample_id']} uses an unknown action")
+        if row["metadata"]["selected_action"] != selected_action:
+            raise ValueError(f"{row['sample_id']} metadata and target action disagree")
 
 
 def main() -> int:
@@ -339,20 +432,31 @@ def main() -> int:
     dataset_info_path = data_dir / "dataset_info.json"
     dataset_info = json.loads(dataset_info_path.read_text(encoding="utf-8"))
     manifest: dict[str, Any] = {
-        "version": 2,
-        "purpose": "synthetic_grpo_format_cold_start",
+        "version": 3,
+        "purpose": "synthetic_grpo_format_cold_start_with_fixed_thinking",
         "seed": args.seed,
         "variants": list(VARIANTS),
         "actions": [*actions, "stop"],
+        "thinking_templates_per_action": len(THINKING_TEMPLATES),
         "experts": {},
     }
 
     for label in LABELS:
         source_path = data_dir / f"{label}_expert_train.jsonl"
-        source_rows = read_jsonl(source_path)
+        source_rows = read_jsonl(source_path) if source_path.exists() else rows_from_staged_images(data_dir, label)
         random.Random(args.seed + LABELS.index(label)).shuffle(source_rows)
         if args.samples_per_expert is not None:
             source_rows = source_rows[: args.samples_per_expert]
+        if not source_rows:
+            raise ValueError(f"no source images found for {label}")
+        action_sequences = {
+            variant: balanced_actions(
+                actions,
+                len(source_rows),
+                seed=args.seed + LABELS.index(label) * 1000 + offset,
+            )
+            for variant, offset in VARIANT_ACTION_OFFSETS.items()
+        }
 
         output_rows: list[dict[str, Any]] = []
         for index, source_row in enumerate(source_rows):
@@ -360,7 +464,7 @@ def main() -> int:
                 build_variants(
                     image_row=source_row,
                     image_index=index,
-                    actions=actions,
+                    action_sequences=action_sequences,
                     build_single_system=build_single_system,
                     build_single_user=build_single_user,
                     build_state_prompt=build_state_prompt,
