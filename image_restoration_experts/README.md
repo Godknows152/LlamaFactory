@@ -34,6 +34,11 @@ initial action, continuation after improvement, recovery after regression,
 continuation when stop is available but quality is insufficient, and stop after
 sufficient quality gain.
 
+The four non-stop rows per image produce 4,000 restoration targets per expert.
+Targets are distributed uniformly across all 16 registered restoration tools,
+so every tool appears exactly 250 times in each expert dataset. `stop` is kept
+as a separate termination target with 1,000 rows per expert.
+
 ## Train All Experts
 
 The launcher trains Fog, Snow, Rain, and Low-light serially on GPUs 0 and 1 and

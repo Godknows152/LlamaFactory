@@ -44,15 +44,8 @@ VARIANTS = (
     "continue_when_stop_available",
     "stop_after_sufficient_gain",
 )
-
-# These match the high-affinity action hints used by the current RL reward.
-PRIMARY_ACTIONS = {
-    "fog": ("ridcp", "kanet"),
-    "snow": ("turbo_snow", "snowmaster"),
-    "rain": ("s2former", "turbo_rain", "idt"),
-    "low_light": ("retinexformer_fivek", "hvicidnet", "lightdiff"),
-}
-REFINEMENT_ACTIONS = ("real_esrgan", "scunet", "nafnet_denoise")
+NON_STOP_VARIANT_COUNT = 4
+EXPECTED_RESTORATION_ACTIONS = 16
 
 
 def parse_args() -> argparse.Namespace:
@@ -202,6 +195,7 @@ def build_image_rows(
     label: str,
     image_path: Path,
     sample_index: int,
+    restoration_actions: tuple[str, ...],
     registry,
     expert,
     build_initial_system,
@@ -209,17 +203,17 @@ def build_image_rows(
     build_state,
     build_system,
 ) -> list[dict[str, Any]]:
-    primary = PRIMARY_ACTIONS[label]
-    first_action = primary[sample_index % len(primary)]
-    recovery_action = primary[(sample_index + 1) % len(primary)]
-    refinement_action = REFINEMENT_ACTIONS[sample_index % len(REFINEMENT_ACTIONS)]
-    late_continue_action = REFINEMENT_ACTIONS[(sample_index + 1) % len(REFINEMENT_ACTIONS)]
+    action_stride = len(restoration_actions) // NON_STOP_VARIANT_COUNT
+    first_action = restoration_actions[sample_index % len(restoration_actions)]
+    second_action = restoration_actions[(sample_index + action_stride) % len(restoration_actions)]
+    third_action = restoration_actions[(sample_index + 2 * action_stride) % len(restoration_actions)]
+    fourth_action = restoration_actions[(sample_index + 3 * action_stride) % len(restoration_actions)]
 
     first = history_entry(0, first_action, 0.3000)
-    regressed = history_entry(1, refinement_action, 0.1200)
-    weak_recovery = history_entry(2, recovery_action, 0.1800)
-    improved = history_entry(1, refinement_action, 0.4200)
-    sufficient = history_entry(2, recovery_action, 0.6500)
+    regressed = history_entry(1, second_action, 0.1200)
+    weak_recovery = history_entry(2, third_action, 0.1800)
+    improved = history_entry(1, second_action, 0.4200)
+    sufficient = history_entry(2, third_action, 0.6500)
 
     no_stop_tools = [registry.build_tool_schema(include_stop=False)]
     with_stop_tools = [registry.build_tool_schema(include_stop=True)]
@@ -248,7 +242,7 @@ def build_image_rows(
             continue_system,
             state_user_prompt(build_state, [first], include_stop=False),
             no_stop_tools,
-            refinement_action,
+            second_action,
             [first],
         ),
         (
@@ -257,7 +251,7 @@ def build_image_rows(
             continue_system,
             state_user_prompt(build_state, [first, regressed], include_stop=False),
             no_stop_tools,
-            recovery_action,
+            third_action,
             [first, regressed],
         ),
         (
@@ -266,7 +260,7 @@ def build_image_rows(
             stop_system,
             state_user_prompt(build_state, [first, regressed, weak_recovery], include_stop=True),
             with_stop_tools,
-            late_continue_action,
+            fourth_action,
             [first, regressed, weak_recovery],
         ),
         (
@@ -362,6 +356,15 @@ def main() -> int:
         ToolRegistry,
     ) = load_project_components()
     registry = ToolRegistry.from_yaml(TOOLS_CONFIG)
+    restoration_actions = tuple(action for action in registry.actions if action != "stop")
+    if len(restoration_actions) != EXPECTED_RESTORATION_ACTIONS:
+        raise ValueError(
+            f"expected {EXPECTED_RESTORATION_ACTIONS} non-stop restoration actions, "
+            f"found {len(restoration_actions)}"
+        )
+    if len(restoration_actions) % NON_STOP_VARIANT_COUNT != 0:
+        raise ValueError("the restoration action count must be divisible by the non-stop variant count")
+
     experts = {
         "fog": ExpertName.FOG,
         "snow": ExpertName.SNOW,
@@ -380,6 +383,11 @@ def main() -> int:
         "enable_thinking": False,
         "min_stop_tool_calls": MIN_STOP_TOOL_CALLS,
         "variants": list(VARIANTS),
+        "target_distribution": {
+            "strategy": "uniform_over_non_stop_restoration_tools_per_expert",
+            "restoration_actions": list(restoration_actions),
+            "stop_is_separate_termination_target": True,
+        },
         "experts": {},
     }
 
@@ -392,6 +400,7 @@ def main() -> int:
                     label=label,
                     image_path=image_path,
                     sample_index=sample_index,
+                    restoration_actions=restoration_actions,
                     registry=registry,
                     expert=experts[label],
                     build_initial_system=build_initial_system,
@@ -402,6 +411,16 @@ def main() -> int:
             )
         random.Random(args.seed + label_index).shuffle(rows)
         validate_rows(rows, data_dir, registry)
+        action_counts = Counter(row["metadata"]["selected_action"] for row in rows)
+        non_stop_counts = [action_counts[action] for action in restoration_actions]
+        if max(non_stop_counts) - min(non_stop_counts) > 1:
+            raise ValueError(f"{label}: non-stop restoration targets are not uniformly distributed")
+        if len(staged_images) * NON_STOP_VARIANT_COUNT % len(restoration_actions) == 0:
+            expected_count = len(staged_images) * NON_STOP_VARIANT_COUNT // len(restoration_actions)
+            if any(count != expected_count for count in non_stop_counts):
+                raise ValueError(f"{label}: expected exactly {expected_count} targets per restoration action")
+        if action_counts["stop"] != len(staged_images):
+            raise ValueError(f"{label}: expected one stop target per source image")
 
         file_name = f"{label}_expert_rl_aligned_train.jsonl"
         output_path = data_dir / file_name
@@ -414,7 +433,8 @@ def main() -> int:
             "source_images": len(staged_images),
             "num_samples": len(rows),
             "variant_counts": dict(sorted(Counter(row["metadata"]["state_variant"] for row in rows).items())),
-            "action_counts": dict(sorted(Counter(row["metadata"]["selected_action"] for row in rows).items())),
+            "action_counts": dict(sorted(action_counts.items())),
+            "non_stop_action_count_range": [min(non_stop_counts), max(non_stop_counts)],
             "sha256": hashlib.sha256(output_path.read_bytes()).hexdigest(),
         }
 
