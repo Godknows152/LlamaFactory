@@ -181,5 +181,6 @@ wandb/
 swanlog/
 /log/*
 !/log/.gitkeep
+/logs/
 generated_predictions.jsonl
 predictions_score.json

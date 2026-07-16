@@ -38,10 +38,10 @@ overwrite_output_dir: true
 save_only_model: false
 report_to: none
 use_swanlab: true
-swanlab_project: image-restoration-multi-agent
-swanlab_run_name: qwen3.5-low-light-expert-rl-aligned-nothink-sft
+swanlab_project: 4expert_SFT
+swanlab_run_name: low_light_0716
 swanlab_mode: cloud
-swanlab_logdir: /home/LXJ/Python_Projects/Agent_Lightning/LlamaFactory/image_restoration_experts/outputs/qwen3_5/swanlab
+swanlab_logdir: /home/LXJ/Python_Projects/Agent_Lightning/LlamaFactory/logs/swanlab
 
 ### train
 per_device_train_batch_size: 4

@@ -57,6 +57,9 @@ Adapters are written to
 `outputs/qwen3_5/format_cold_start/{fog,snow,rain,low_light}`, which preserves
 the paths already consumed by the four RL configurations.
 
+Console logs are written to `LlamaFactory/logs`. SwanLab runs use project
+`4expert_SFT` and the `<expert>_0716` experiment names.
+
 ## Included Files
 
 - `scripts/build_expert_sft_dataset.py`: stages images and builds validated RL-aligned ShareGPT datasets.
