@@ -2,7 +2,7 @@
 model_name_or_path: /home/LXJ/Python_Projects/Models/Qwen3.5-9B
 trust_remote_code: true
 resize_vocab: false
-image_max_pixels: 262144
+image_max_pixels: 589824
 
 ### method
 stage: sft
@@ -18,38 +18,39 @@ freeze_multi_modal_projector: true
 freeze_language_model: false
 
 ### dataset
-dataset: image_restoration_snow_expert_format_train
+dataset: image_restoration_fog_expert_rl_aligned_train
 dataset_dir: /home/LXJ/Python_Projects/Agent_Lightning/LlamaFactory/image_restoration_experts/data
 media_dir: /home/LXJ/Python_Projects/Agent_Lightning/LlamaFactory/image_restoration_experts/data
 template: qwen3_5
-enable_thinking: true
+enable_thinking: false
 cutoff_len: 4096
 overwrite_cache: true
 preprocessing_num_workers: 16
 dataloader_num_workers: 4
 
 ### output
-output_dir: /home/LXJ/Python_Projects/Agent_Lightning/LlamaFactory/image_restoration_experts/outputs/qwen3_5/format_cold_start/snow
+output_dir: /home/LXJ/Python_Projects/Agent_Lightning/LlamaFactory/image_restoration_experts/outputs/qwen3_5/format_cold_start/fog
 logging_steps: 2
-save_steps: 50
-save_total_limit: 3
+save_steps: 100
+save_total_limit: 2
 plot_loss: true
 overwrite_output_dir: true
+save_only_model: false
 report_to: none
 use_swanlab: true
 swanlab_project: image-restoration-multi-agent
-swanlab_run_name: qwen3.5-snow-expert-format-cold-start-sft
+swanlab_run_name: qwen3.5-fog-expert-rl-aligned-nothink-sft
 swanlab_mode: cloud
-swanlab_logdir: /home/LXJ/Python_Projects/Agent_Lightning/LlamaFactory/image_restoration_experts/outputs/qwen3_5/format_cold_start/snow/swanlab
+swanlab_logdir: /home/LXJ/Python_Projects/Agent_Lightning/LlamaFactory/image_restoration_experts/outputs/qwen3_5/swanlab
 
 ### train
-per_device_train_batch_size: 8
-gradient_accumulation_steps: 2
+per_device_train_batch_size: 4
+gradient_accumulation_steps: 4
 learning_rate: 5.0e-5
-num_train_epochs: 1.0
+num_train_epochs: 2.0
 lr_scheduler_type: cosine
-warmup_ratio: 0.03
+warmup_steps: 16
 bf16: true
 gradient_checkpointing: true
 ddp_timeout: 180000000
-seed: 20260616
+seed: 20260716
