@@ -62,8 +62,8 @@ Adapters are written to
 `outputs/qwen3_5/format_cold_start/{fog,snow,rain,low_light}`, which preserves
 the paths already consumed by the four RL configurations.
 
-Console logs are written to `LlamaFactory/logs`. SwanLab runs use project
-`4expert_SFT` and the `<expert>_0716` experiment names.
+Each expert writes one console log to `LlamaFactory/logs/<expert>_0716.log`.
+SwanLab runs use project `4expert_SFT` and the `<expert>_0716` experiment names.
 
 ## Included Files
 

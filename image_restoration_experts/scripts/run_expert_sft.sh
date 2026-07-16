@@ -24,13 +24,10 @@ DATASET_PATH="${PROJECT_DIR}/data/${EXPERT}_expert_rl_aligned_train.jsonl"
 LOG_DIR="${LLAMAFACTORY_DIR}/logs"
 LLAMAFACTORY_CLI="${LLAMAFACTORY_CLI:-/home/LXJ/anaconda3/envs/llamafactory/bin/llamafactory-cli}"
 CUDA_DEVICES="${CUDA_VISIBLE_DEVICES:-0,1}"
-TIMESTAMP="$(date '+%Y%m%d_%H%M%S')"
-LOG_FILE="${LOG_DIR}/${EXPERT}_expert_rl_aligned_sft_${TIMESTAMP}.log"
-LATEST_LOG="${LOG_DIR}/${EXPERT}_expert_rl_aligned_sft_latest.log"
+LOG_FILE="${LOG_DIR}/${EXPERT}_0716.log"
 
 mkdir -p "${LOG_DIR}"
-ln -sfn "$(basename "${LOG_FILE}")" "${LATEST_LOG}"
-exec > >(tee -a "${LOG_FILE}") 2>&1
+exec > >(tee "${LOG_FILE}") 2>&1
 
 echo "Start time: $(date --iso-8601=seconds)"
 echo "Expert: ${EXPERT}"
