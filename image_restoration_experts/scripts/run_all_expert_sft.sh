@@ -33,10 +33,6 @@ if [[ "${SFT_RUN_IN_FOREGROUND:-0}" != "1" && "${SFT_BACKGROUND_CHILD:-0}" != "1
     bash "${SCRIPT_PATH}" \
     >"${MAIN_LOG}" 2>&1 </dev/null &
   BACKGROUND_PID=$!
-  printf '%s\n' "${BACKGROUND_PID}" >"${PID_FILE}"
-  if ! kill -0 "${BACKGROUND_PID}" 2>/dev/null; then
-    unlink "${PID_FILE}"
-  fi
 
   echo "Started four-expert SFT in the background (PID ${BACKGROUND_PID})."
   echo "GPU devices: 0,1"
@@ -46,6 +42,7 @@ fi
 
 if [[ "${SFT_BACKGROUND_CHILD:-0}" == "1" ]]; then
   MAIN_LOG="${SFT_MAIN_LOG:?SFT_MAIN_LOG is required for the background child}"
+  printf '%s\n' "$$" >"${PID_FILE}"
   cleanup_pid_file() {
     if [[ -f "${PID_FILE}" ]]; then
       unlink "${PID_FILE}"
