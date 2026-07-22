@@ -9,17 +9,21 @@ first restoration turn in the current old-VERL rollout:
   `build_expert_single_step_sft_*`;
 - the first-turn `restore_image` schema containing all 16 restoration actions
   and no `stop`;
+- one short supervised reasoning block selected from five alternatives written
+  specifically for the target restoration action;
 - exactly one supervised `restore_image` action.
 
 There are no later-turn samples, synthetic action histories, synthetic IQA
-feedback, or stop targets. The datasets also do not contain reasoning ground
-truth. Training uses the `qwen3_5` template with `enable_thinking: false`; the
-template places an empty thinking block in the prompt and masks it from loss.
-Every supervised response is stored as one structured `function_call`, which
-the template renders in the native Qwen3.5 XML form expected by the RL
+feedback, or stop targets. Training uses the `qwen3_5` template with
+`enable_thinking: true`. Every supervised assistant response contains the
+selected reasoning text and the native Qwen3.5 XML form expected by the RL
 `qwen3_coder` parser:
 
 ```text
+<think>
+<SHORT ACTION-SPECIFIC REASONING>
+</think>
+
 <tool_call>
 <function=restore_image>
 <parameter=action>
@@ -29,9 +33,10 @@ the template renders in the native Qwen3.5 XML form expected by the RL
 </tool_call>
 ```
 
-This setting is SFT-only. The old-VERL GRPO configuration is intentionally
-unchanged, so a later GRPO run can enable thinking and learn its reasoning
-policy from reward instead of synthetic reasoning labels.
+The reasoning catalog contains exactly five distinct texts for each of the 16
+non-stop tools, for 80 texts in total. Selection uses the dataset seed, so the
+assignment is random across samples but byte-for-byte reproducible when the
+same seed and source images are used.
 
 ## Build Data
 
@@ -43,8 +48,9 @@ From the Agent Lightning repository root:
 ```
 
 Each of the 1,000 source images per expert produces exactly one first-turn row,
-for 1,000 samples per expert and 4,000 samples in total. Targets use a
-deterministic round-robin assignment over all 16 registered restoration tools.
+for 1,000 samples per expert and 4,000 samples in total. Tool targets use a
+deterministic round-robin assignment over all 16 registered restoration tools,
+while one of that tool's five reasoning texts is selected by a seeded RNG.
 Because 1,000 is not divisible by 16, each tool appears either 62 or 63 times
 in every expert dataset; the maximum difference is one.
 
@@ -82,20 +88,29 @@ SFT_RUN_IN_FOREGROUND=1 DRY_RUN=1 \
   bash LlamaFactory/image_restoration_experts/scripts/run_all_expert_sft.sh
 ```
 
-Adapters are written to
-`outputs/qwen3_5/format_cold_start/{fog,snow,rain,low_light}`, which preserves
-the paths already consumed by the four RL configurations.
+The 2026-07-18 adapters are archived under
+`outputs/qwen3_5_0718old/format_cold_start/{fog,snow,rain,low_light}`. New
+adapters are written to
+`outputs/qwen3_5_0721/format_cold_start/{fog,snow,rain,low_light}`.
 
-Every expert is configured for exactly two training epochs.
+Each expert reports Trainer metrics to the SwanLab cloud project
+`image-restoration-expert-sft`, using run names `fog_0721`, `snow_0721`,
+`rain_0721`, and `low_light_0721`. Local SwanLab records are stored under
+`outputs/qwen3_5_0721/swanlab/<expert>`.
+
+Every expert is configured for exactly three training epochs.
 
 ## Included Files
 
 - `scripts/build_expert_sft_dataset.py`: stages images and builds validated,
-  first-turn-only RL-aligned ShareGPT datasets.
+  thinking-enabled first-turn-only RL-aligned ShareGPT datasets.
+- `scripts/restoration_thinking_templates.py`: defines and validates five short
+  reasoning alternatives for every non-stop restoration tool.
 - `scripts/run_expert_sft.sh`: rejects stale or modified datasets, then runs
   one expert on GPU 0 and 1.
 - `scripts/run_all_expert_sft.sh`: starts the validated four-expert serial
   workflow in the background and owns its single terminal log.
-- `configs/qwen35_<expert>_expert_lora_sft.yaml`: independent no-thinking LoRA configurations.
+- `configs/qwen35_<expert>_expert_lora_sft.yaml`: independent three-epoch,
+  thinking-enabled LoRA configurations.
 - `data/dataset_info.json`: LLaMA-Factory dataset registration generated with the datasets.
 - `data/manifest.json`: generated sample counts, action distributions, checksums, and alignment metadata.

@@ -57,11 +57,13 @@ fi
 # any inherited CUDA_VISIBLE_DEVICES value so no other GPU can be selected.
 export CUDA_VISIBLE_DEVICES="0,1"
 
-echo "========== Four-expert first-turn SFT started =========="
+echo "========== Four-expert thinking-enabled first-turn SFT started =========="
 echo "Start time: $(date --iso-8601=seconds)"
 echo "PID: $$"
 echo "CUDA_VISIBLE_DEVICES: ${CUDA_VISIBLE_DEVICES}"
-echo "Epochs per expert: 2"
+echo "Epochs per expert: 3"
+echo "Output root: ${PROJECT_DIR}/outputs/qwen3_5_0721"
+echo "SwanLab project: image-restoration-expert-sft"
 echo "Log file: ${MAIN_LOG}"
 
 manifest_is_current() {
@@ -71,18 +73,19 @@ import sys
 
 data = json.load(open(sys.argv[1], encoding="utf-8"))
 valid = (
-    data.get("version") == 2
-    and data.get("purpose") == "first_turn_only_rl_aligned_four_expert_sft_without_reasoning_targets"
+    data.get("version") == 4
+    and data.get("purpose") == "first_turn_only_rl_aligned_four_expert_sft_with_short_reasoning_targets"
+    and data.get("enable_thinking") is True
 )
 sys.exit(0 if valid else 1)
 ' "${MANIFEST_PATH}" >/dev/null 2>&1
 }
 
 if [[ "${REBUILD_DATA:-0}" == "1" ]] || ! manifest_is_current; then
-  echo "========== Build first-turn-only RL-aligned SFT datasets =========="
+  echo "========== Build thinking-enabled first-turn-only RL-aligned SFT datasets =========="
   "${DATA_PYTHON}" "${DATA_BUILDER}"
 else
-  echo "========== Reuse validated first-turn-only SFT datasets =========="
+  echo "========== Reuse validated thinking-enabled first-turn-only SFT datasets =========="
 fi
 
 for expert in "${EXPERTS[@]}"; do

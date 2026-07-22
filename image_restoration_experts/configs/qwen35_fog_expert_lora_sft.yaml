@@ -22,14 +22,14 @@ dataset: image_restoration_fog_expert_rl_aligned_train
 dataset_dir: /home/LXJ/Python_Projects/Agent_Lightning/LlamaFactory/image_restoration_experts/data
 media_dir: /home/LXJ/Python_Projects/Agent_Lightning/LlamaFactory/image_restoration_experts/data
 template: qwen3_5
-enable_thinking: false
+enable_thinking: true
 cutoff_len: 4096
 overwrite_cache: true
 preprocessing_num_workers: 16
 dataloader_num_workers: 4
 
 ### output
-output_dir: /home/LXJ/Python_Projects/Agent_Lightning/LlamaFactory/image_restoration_experts/outputs/qwen3_5/format_cold_start/fog
+output_dir: /home/LXJ/Python_Projects/Agent_Lightning/LlamaFactory/image_restoration_experts/outputs/qwen3_5_0721/format_cold_start/fog
 logging_steps: 2
 save_steps: 100
 save_total_limit: 2
@@ -37,13 +37,17 @@ plot_loss: true
 overwrite_output_dir: true
 save_only_model: false
 report_to: none
-use_swanlab: false
+use_swanlab: true
+swanlab_project: image-restoration-expert-sft
+swanlab_run_name: fog_0721
+swanlab_mode: cloud
+swanlab_logdir: /home/LXJ/Python_Projects/Agent_Lightning/LlamaFactory/image_restoration_experts/outputs/qwen3_5_0721/swanlab/fog
 
 ### train
 per_device_train_batch_size: 4
 gradient_accumulation_steps: 4
 learning_rate: 5.0e-5
-num_train_epochs: 2
+num_train_epochs: 3
 lr_scheduler_type: cosine
 warmup_steps: 16
 bf16: true

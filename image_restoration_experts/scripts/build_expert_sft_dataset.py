@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Build first-turn SFT datasets for the four image-restoration experts.
+"""Build thinking-enabled first-turn SFT datasets for four restoration experts.
 
 Each source image produces exactly one sample. Its system prompt, user prompt,
 tool schema, and tool-call target match the first restoration decision made by
-`examples/image_restoration_multi_agent/old_verl_grpo`. No synthetic
-multi-turn state, IQA history, later restoration decision, or stop target is
-included.
+`examples/image_restoration_multi_agent/old_verl_grpo`. Every target contains
+one short, action-specific reasoning block followed by exactly one tool call.
+No synthetic multi-turn state, IQA history, later restoration decision, or
+stop target is included.
 
 Run from the Agent Lightning repository root:
 
@@ -25,6 +26,12 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
+from restoration_thinking_templates import (
+    RESTORATION_THINKING_TEMPLATES,
+    THINKING_TEMPLATES_PER_ACTION,
+    validate_thinking_templates,
+)
+
 
 SCRIPT_PATH = Path(__file__).resolve()
 PROJECT_DIR = SCRIPT_PATH.parents[1]
@@ -37,9 +44,10 @@ DEFAULT_DATA_DIR = PROJECT_DIR / "data"
 LABELS = ("fog", "snow", "rain", "low_light")
 EXPERT_NAMES = {label: f"{label}_expert" for label in LABELS}
 EXPECTED_RESTORATION_ACTIONS = 16
-MANIFEST_VERSION = 2
-PROMPT_ALIGNMENT = "old_verl_grpo_first_restoration_turn_v1"
-PROMPT_VERSION = "expert-single-step-sft-hermes-v1"
+MANIFEST_VERSION = 4
+MANIFEST_PURPOSE = "first_turn_only_rl_aligned_four_expert_sft_with_short_reasoning_targets"
+PROMPT_ALIGNMENT = "old_verl_grpo_first_restoration_turn_with_thinking_v3"
+PROMPT_VERSION = "expert-single-step-sft-hermes-thinking-v3"
 
 
 def parse_args() -> argparse.Namespace:
@@ -112,13 +120,16 @@ def stage_images(source_root: Path, data_dir: Path, label: str, limit: int | Non
     return staged_paths
 
 
-def function_call(action: str) -> str:
-    """Build the structured target consumed by LLaMA-Factory's tool formatter."""
-    return json.dumps(
-        {"name": "restore_image", "arguments": {"action": action}},
-        ensure_ascii=False,
-        separators=(",", ":"),
+def render_tool_call(action: str) -> str:
+    """Render one native Qwen3.5 XML tool call."""
+    return (
+        f"<tool_call>\n<function=restore_image>\n<parameter=action>\n{action}\n</parameter>\n</function>\n</tool_call>"
     )
+
+
+def assistant_target(thinking_text: str, action: str) -> str:
+    """Build one supervised reasoning block followed by exactly one tool call."""
+    return f"<think>\n{thinking_text}\n</think>\n\n{render_tool_call(action)}"
 
 
 def make_row(
@@ -130,12 +141,14 @@ def make_row(
     user: str,
     tools: list[dict[str, Any]],
     action: str,
+    thinking_text: str,
+    thinking_template_index: int,
 ) -> dict[str, Any]:
-    """Build one image-to-first-action supervision pair."""
+    """Build one image-to-reasoning-and-first-action supervision pair."""
     return {
         "messages": [
             {"role": "user", "content": user},
-            {"role": "function_call", "content": function_call(action)},
+            {"role": "assistant", "content": assistant_target(thinking_text, action)},
         ],
         "system": system,
         "tools": json.dumps(tools, ensure_ascii=False, separators=(",", ":")),
@@ -148,7 +161,8 @@ def make_row(
             "prompt_version": PROMPT_VERSION,
             "turn_index": 0,
             "selected_action": action,
-            "enable_thinking": False,
+            "enable_thinking": True,
+            "thinking_template_index": thinking_template_index,
             "synthetic_state": False,
         },
     }
@@ -176,7 +190,7 @@ def validate_rows(
         seen_sample_ids.add(sample_id)
 
         if len(row["messages"]) != 2:
-            raise ValueError(f"{sample_id}: expected one user/function_call pair")
+            raise ValueError(f"{sample_id}: expected one user/assistant pair")
         user, assistant = row["messages"]
         if user != {"role": "user", "content": expected_user}:
             raise ValueError(f"{sample_id}: user prompt differs from the RL first-turn prompt")
@@ -184,15 +198,26 @@ def validate_rows(
             raise ValueError(f"{sample_id}: system prompt differs from the RL first-turn prompt")
         if row["tools"] != expected_tools_text:
             raise ValueError(f"{sample_id}: tool schema differs from the RL first-turn schema")
-        if assistant["role"] != "function_call":
-            raise ValueError(f"{sample_id}: assistant target must be a structured function call")
-        if "<think>" in assistant["content"] or "</think>" in assistant["content"]:
-            raise ValueError(f"{sample_id}: thinking content is forbidden")
+        if assistant["role"] != "assistant":
+            raise ValueError(f"{sample_id}: reasoning target must use the assistant role")
 
-        call = json.loads(assistant["content"])
-        if call.get("name") != "restore_image" or set(call.get("arguments", {})) != {"action"}:
-            raise ValueError(f"{sample_id}: invalid restore_image call")
-        action = call["arguments"]["action"]
+        metadata = row["metadata"]
+        action = metadata.get("selected_action")
+        thinking_template_index = metadata.get("thinking_template_index")
+        if action not in RESTORATION_THINKING_TEMPLATES:
+            raise ValueError(f"{sample_id}: missing thinking templates for action {action!r}")
+        if not isinstance(thinking_template_index, int) or not (
+            0 <= thinking_template_index < THINKING_TEMPLATES_PER_ACTION
+        ):
+            raise ValueError(f"{sample_id}: invalid thinking template index {thinking_template_index!r}")
+        thinking_text = RESTORATION_THINKING_TEMPLATES[action][thinking_template_index]
+        if assistant["content"] != assistant_target(thinking_text, action):
+            raise ValueError(f"{sample_id}: assistant reasoning/tool-call target is malformed")
+        if assistant["content"].count("<think>") != 1 or assistant["content"].count("</think>") != 1:
+            raise ValueError(f"{sample_id}: expected exactly one complete thinking block")
+        if assistant["content"].count("<tool_call>") != 1 or assistant["content"].count("</tool_call>") != 1:
+            raise ValueError(f"{sample_id}: expected exactly one complete tool call")
+
         if action == "stop":
             raise ValueError(f"{sample_id}: stop is forbidden on the first restoration turn")
         registry.validate_action(action)
@@ -200,13 +225,12 @@ def validate_rows(
         if schema_actions != expected_actions or action not in schema_actions:
             raise ValueError(f"{sample_id}: invalid first-turn action schema")
 
-        metadata = row["metadata"]
         if (
             metadata.get("turn_index") != 0
             or metadata.get("synthetic_state") is not False
-            or metadata.get("enable_thinking") is not False
+            or metadata.get("enable_thinking") is not True
         ):
-            raise ValueError(f"{sample_id}: metadata does not describe a no-thinking first-turn sample")
+            raise ValueError(f"{sample_id}: metadata does not describe a thinking-enabled first-turn sample")
 
         images = row.get("images", [])
         if len(images) != 1:
@@ -250,6 +274,7 @@ def main() -> int:
         raise ValueError(
             f"expected {EXPECTED_RESTORATION_ACTIONS} non-stop restoration actions, found {len(restoration_actions)}"
         )
+    validate_thinking_templates(restoration_actions)
 
     experts = {
         "fog": ExpertName.FOG,
@@ -261,9 +286,15 @@ def main() -> int:
     initial_tools = [registry.build_tool_schema(include_stop=False)]
 
     dataset_info: dict[str, Any] = {}
+    thinking_catalog_json = json.dumps(
+        RESTORATION_THINKING_TEMPLATES,
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
     manifest: dict[str, Any] = {
         "version": MANIFEST_VERSION,
-        "purpose": "first_turn_only_rl_aligned_four_expert_sft_without_reasoning_targets",
+        "purpose": MANIFEST_PURPOSE,
         "seed": args.seed,
         "source_root": str(source_root),
         "prompt_alignment": PROMPT_ALIGNMENT,
@@ -275,15 +306,23 @@ def main() -> int:
             "contains_stop_targets": False,
         },
         "assistant_format": {
-            "dataset_role": "function_call",
-            "dataset_content": '{"name":"restore_image","arguments":{"action":"<ACTION>"}}',
-            "rendered_by_template": "qwen3_5_xml_tool_call",
+            "dataset_role": "assistant",
+            "dataset_content": "<think>\\n<REASONING>\\n</think>\\n\\n<TOOL_CALL>",
+            "rendered_by_template": "qwen3_5_reasoning_with_native_xml_tool_call",
             "rendered_example": (
+                "<think>\n<REASONING>\n</think>\n\n"
                 "<tool_call>\n<function=restore_image>\n<parameter=action>\n"
                 "<ACTION>\n</parameter>\n</function>\n</tool_call>"
             ),
         },
-        "enable_thinking": False,
+        "enable_thinking": True,
+        "thinking_targets": {
+            "selection": "seeded_uniform_random_per_sample",
+            "templates_per_action": THINKING_TEMPLATES_PER_ACTION,
+            "num_actions": len(RESTORATION_THINKING_TEMPLATES),
+            "num_templates": len(RESTORATION_THINKING_TEMPLATES) * THINKING_TEMPLATES_PER_ACTION,
+            "catalog_sha256": hashlib.sha256(thinking_catalog_json.encode("utf-8")).hexdigest(),
+        },
         "target_distribution": {
             "strategy": "round_robin_uniform_over_all_non_stop_restoration_tools_per_expert",
             "restoration_actions": list(restoration_actions),
@@ -295,19 +334,27 @@ def main() -> int:
     for label_index, label in enumerate(LABELS):
         staged_images = stage_images(source_root, data_dir, label, args.samples_per_expert)
         initial_system = build_initial_system(experts[label], registry)
-        rows = [
-            make_row(
-                label=label,
-                image_path=image_path,
-                sample_index=sample_index,
-                system=initial_system,
-                user=initial_user,
-                tools=initial_tools,
-                action=restoration_actions[sample_index % len(restoration_actions)],
+        if f"Prompt version: {PROMPT_VERSION}" not in initial_system:
+            raise ValueError(f"{label}: SFT prompt version does not match dataset metadata")
+        rng = random.Random(args.seed + label_index)
+        rows: list[dict[str, Any]] = []
+        for sample_index, image_path in enumerate(staged_images):
+            action = restoration_actions[sample_index % len(restoration_actions)]
+            thinking_template_index = rng.randrange(THINKING_TEMPLATES_PER_ACTION)
+            rows.append(
+                make_row(
+                    label=label,
+                    image_path=image_path,
+                    sample_index=sample_index,
+                    system=initial_system,
+                    user=initial_user,
+                    tools=initial_tools,
+                    action=action,
+                    thinking_text=RESTORATION_THINKING_TEMPLATES[action][thinking_template_index],
+                    thinking_template_index=thinking_template_index,
+                )
             )
-            for sample_index, image_path in enumerate(staged_images)
-        ]
-        random.Random(args.seed + label_index).shuffle(rows)
+        rng.shuffle(rows)
         validate_rows(
             rows,
             data_dir=data_dir,
@@ -318,6 +365,18 @@ def main() -> int:
         )
 
         action_counts = Counter(row["metadata"]["selected_action"] for row in rows)
+        thinking_template_counts = {
+            action: dict(
+                sorted(
+                    Counter(
+                        str(row["metadata"]["thinking_template_index"])
+                        for row in rows
+                        if row["metadata"]["selected_action"] == action
+                    ).items()
+                )
+            )
+            for action in restoration_actions
+        }
         counts = [action_counts[action] for action in restoration_actions]
         if max(counts) - min(counts) > 1:
             raise ValueError(f"{label}: restoration targets are not uniformly distributed")
@@ -340,6 +399,7 @@ def main() -> int:
             "turn_counts": {"0": len(rows)},
             "action_counts": dict(sorted(action_counts.items())),
             "action_count_range": [min(counts), max(counts)],
+            "thinking_template_counts": thinking_template_counts,
             "sha256": hashlib.sha256(output_path.read_bytes()).hexdigest(),
         }
 

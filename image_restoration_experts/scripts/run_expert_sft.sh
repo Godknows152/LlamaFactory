@@ -55,21 +55,29 @@ if [[ ! -x "${DATA_PYTHON}" ]]; then
   exit 1
 fi
 
-"${DATA_PYTHON}" - "${MANIFEST_PATH}" "${EXPERT}" "${DATASET_PATH}" <<'PY'
+"${DATA_PYTHON}" - "${MANIFEST_PATH}" "${EXPERT}" "${DATASET_PATH}" "${CONFIG_PATH}" <<'PY'
 import hashlib
 import json
 import sys
 from pathlib import Path
 
+import yaml
+
 manifest_path = Path(sys.argv[1])
 expert = sys.argv[2]
 dataset_path = Path(sys.argv[3])
+config_path = Path(sys.argv[4])
 manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+train_config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
 
-expected_purpose = "first_turn_only_rl_aligned_four_expert_sft_without_reasoning_targets"
-if manifest.get("version") != 2 or manifest.get("purpose") != expected_purpose:
+expected_purpose = "first_turn_only_rl_aligned_four_expert_sft_with_short_reasoning_targets"
+if (
+    manifest.get("version") != 4
+    or manifest.get("purpose") != expected_purpose
+    or manifest.get("enable_thinking") is not True
+):
     raise SystemExit(
-        "The SFT manifest is stale: expected first-turn-only version 2 data. "
+        "The SFT manifest is stale: expected thinking-enabled first-turn-only version 4 data. "
         "Run run_all_expert_sft.sh with REBUILD_DATA=1."
     )
 
@@ -87,6 +95,37 @@ if line_count != entry.get("num_samples"):
 digest = hashlib.sha256(dataset_path.read_bytes()).hexdigest()
 if digest != entry.get("sha256"):
     raise SystemExit("Dataset checksum does not match the manifest; rebuild the SFT data.")
+
+with dataset_path.open(encoding="utf-8") as file:
+    first_row = json.loads(next(line for line in file if line.strip()))
+messages = first_row.get("messages", [])
+if len(messages) != 2 or messages[-1].get("role") != "assistant":
+    raise SystemExit("Dataset does not contain one user/assistant reasoning target per row.")
+target = messages[-1].get("content", "")
+if not target.startswith("<think>\n") or "\n</think>\n\n<tool_call>\n" not in target:
+    raise SystemExit("Dataset target does not contain reasoning followed by a Qwen3.5 tool call.")
+if first_row.get("metadata", {}).get("enable_thinking") is not True:
+    raise SystemExit("Dataset metadata does not enable thinking.")
+if train_config.get("enable_thinking") is not True:
+    raise SystemExit("Training configuration must set enable_thinking: true.")
+if train_config.get("num_train_epochs") != 3:
+    raise SystemExit("Training configuration must set num_train_epochs: 3.")
+
+project_dir = config_path.parent.parent
+expected_output_dir = project_dir / "outputs" / "qwen3_5_0721" / "format_cold_start" / expert
+expected_swanlab_logdir = project_dir / "outputs" / "qwen3_5_0721" / "swanlab" / expert
+if Path(train_config.get("output_dir", "")).resolve() != expected_output_dir.resolve():
+    raise SystemExit(f"Training output_dir must be {expected_output_dir}.")
+if train_config.get("use_swanlab") is not True:
+    raise SystemExit("Training configuration must enable SwanLab.")
+if train_config.get("swanlab_project") != "image-restoration-expert-sft":
+    raise SystemExit("Unexpected SwanLab project name.")
+if train_config.get("swanlab_run_name") != f"{expert}_0721":
+    raise SystemExit(f"SwanLab run name must be {expert}_0721.")
+if train_config.get("swanlab_mode") != "cloud":
+    raise SystemExit("SwanLab must run in cloud mode.")
+if Path(train_config.get("swanlab_logdir", "")).resolve() != expected_swanlab_logdir.resolve():
+    raise SystemExit(f"SwanLab log directory must be {expected_swanlab_logdir}.")
 PY
 
 LLAMAFACTORY_BIN_DIR="$(dirname "${LLAMAFACTORY_CLI}")"
