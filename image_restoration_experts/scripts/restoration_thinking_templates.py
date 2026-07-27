@@ -7,7 +7,6 @@ the same seed produces byte-identical training data.
 
 from __future__ import annotations
 
-
 THINKING_TEMPLATES_PER_ACTION = 5
 
 RESTORATION_THINKING_TEMPLATES: dict[str, tuple[str, ...]] = {

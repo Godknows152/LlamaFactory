@@ -32,7 +32,6 @@ from restoration_thinking_templates import (
     validate_thinking_templates,
 )
 
-
 SCRIPT_PATH = Path(__file__).resolve()
 PROJECT_DIR = SCRIPT_PATH.parents[1]
 REPOSITORY_ROOT = SCRIPT_PATH.parents[3]
