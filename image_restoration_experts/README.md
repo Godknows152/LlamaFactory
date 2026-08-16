@@ -117,6 +117,44 @@ model-visible action history use this model-facing vocabulary. The tool runtime
 translates aliases back to canonical actions before restoration, reward, and
 cache logic runs.
 
+## Unified Four-Expert SFT
+
+The unified variant directly concatenates the latest first-token-distinct fog,
+snow, rain, and low-light datasets in that order. It contains 4,000 rows total,
+with 1,000 rows from each expert, and preserves each row's original
+`degradation_type`, `expert_name`, image, thinking target, action alias, and tool
+schema. No row is resampled or shuffled during dataset construction.
+
+Build the merged dataset and run one unified Qwen3.5 LoRA adapter on GPUs 0 and 1:
+
+```bash
+SFT_RUN_IN_FOREGROUND=1 DRY_RUN=1 \
+  bash LlamaFactory/image_restoration_experts/scripts/run_unified_expert_sft_first_token_4gpu.sh
+
+bash LlamaFactory/image_restoration_experts/scripts/run_unified_expert_sft_first_token_4gpu.sh
+```
+
+The launcher starts training in the background by default and writes all output
+to a timestamped log under `LlamaFactory/logs`:
+
+```text
+LlamaFactory/logs/unified_expert_sft_2gpu_<timestamp>.log
+LlamaFactory/logs/unified_expert_sft_2gpu.pid
+```
+
+Use `SFT_RUN_IN_FOREGROUND=1` when an attached foreground run is preferred.
+
+The unified run uses three epochs and an effective batch size of 128 (2 GPUs ×
+16 samples × 4 gradient accumulation). Its files
+are isolated from the four existing expert adapters:
+
+```text
+data:     image_restoration_experts/data/unified_expert_first_token_actions_train.jsonl
+manifest: image_restoration_experts/data/unified_expert_manifest.json
+config:   image_restoration_experts/configs/unified_expert_4gpu/qwen35_unified_expert_lora_sft.yaml
+output:   image_restoration_experts/outputs/qwen3_5_0813/format_cold_start/unified
+```
+
 The reasoning catalog contains exactly five distinct texts for each of the 16
 non-stop tools, for 80 texts in total. Selection uses the dataset seed, so the
 assignment is random across samples but byte-for-byte reproducible when the

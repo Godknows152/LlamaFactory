@@ -1,0 +1,56 @@
+### model
+model_name_or_path: /home/LXJ/Python_Projects/Models/Qwen3.5-9B
+trust_remote_code: true
+resize_vocab: false
+image_max_pixels: 589824
+
+### method
+stage: sft
+do_train: true
+finetuning_type: lora
+create_new_adapter: true
+lora_target: all
+lora_rank: 16
+lora_alpha: 32
+lora_dropout: 0.05
+freeze_vision_tower: true
+freeze_multi_modal_projector: true
+freeze_language_model: false
+
+### dataset
+dataset: image_restoration_unified_expert_first_token_actions_train
+dataset_dir: /home/LXJ/Python_Projects/Agent_Lightning/LlamaFactory/image_restoration_experts/data
+media_dir: /home/LXJ/Python_Projects/Agent_Lightning/LlamaFactory/image_restoration_experts/data
+template: qwen3_5
+enable_thinking: true
+cutoff_len: 4096
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 4
+
+### output
+output_dir: /home/LXJ/Python_Projects/Agent_Lightning/LlamaFactory/image_restoration_experts/outputs/qwen3_5_0813/format_cold_start/unified
+logging_steps: 2
+save_steps: 100
+save_total_limit: 2
+plot_loss: true
+overwrite_output_dir: true
+save_only_model: false
+report_to: none
+use_swanlab: true
+swanlab_project: unified-expert-sft
+swanlab_run_name: qwen35_four_experts_unified_3epoch
+swanlab_mode: cloud
+swanlab_logdir: /home/LXJ/Python_Projects/Agent_Lightning/LlamaFactory/image_restoration_experts/outputs/qwen3_5_0813/swanlab/unified
+
+### train
+per_device_train_batch_size: 16
+gradient_accumulation_steps: 4
+learning_rate: 5.0e-5
+num_train_epochs: 3
+lr_scheduler_type: cosine
+warmup_steps: 16
+bf16: true
+gradient_checkpointing: true
+ddp_timeout: 180000000
+seed: 20260718
